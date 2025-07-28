@@ -318,6 +318,14 @@ app.use('/api', unifiedRouter) // 모든 라우팅을 /api 하위에서 처리
 // 정적 파일 제공 (React 빌드 파일)
 app.use(express.static(path.join(__dirname, '../build')))
 
+// SPA 라우팅 지원: 없는 경로는 모두 index.html 반환 (API 경로 제외)
+app.get('*', (req, res) => {
+  // API 경로는 패스
+  if (req.path.startsWith('/api'))
+    return res.status(404).json({ error: 'API 경로가 잘못되었습니다.' })
+  res.sendFile(path.join(__dirname, '../build', 'index.html'))
+})
+
 // 서버 시작
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
