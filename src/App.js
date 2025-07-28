@@ -10,6 +10,7 @@ import PostDetailPage from './pages/PostDetailPage'
 import EditPostPage from './pages/EditPostPage'
 import DeletePostPage from './pages/DeletePostPage'
 import EditCommentPage from './pages/EditCommentPage'
+import MyPage from './pages/Mypage'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/postdetailpage" element={<PostDetailPage />} />
           <Route path="/deletepostpage" element={<DeletePostPage />} />
           <Route path="/editcommentpage" element={<EditCommentPage />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Routes>
       </BrowserRouter>
     </>

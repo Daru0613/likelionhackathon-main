@@ -1,0 +1,165 @@
+.mypage-container {
+  padding: 20px;
+}
+
+/* 프로필 영역 */
+.profile-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 3px solid #0077cc;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.profile-icon-box {
+  margin-right: 20px;
+}
+
+.profile-icon {
+  font-size: 60px;
+  color: #555;
+}
+
+.profile-info-box p {
+  margin: 4px 0;
+}
+
+/* 마이페이지 레이아웃 */
+.mypage-body {
+  display: flex;
+}
+
+.mypage-sidebar {
+  width: 200px;
+  padding-right: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.mypage-sidebar p {
+  cursor: pointer;
+  margin: 10px 0;
+  color: #0077cc;
+}
+
+.mypage-content {
+  flex: 1;
+  padding-left: 20px;
+}
+
+/* 회원 탈퇴 버튼 */
+.withdraw-button {
+  padding: 10px 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 힐링 리뷰 카드 */
+.review-card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.review-card {
+  background-color: #f9f9f9;
+  border: 3px solid #0077cc;
+  border-radius: 12px;
+  padding: 16px;
+  width: calc(50% - 8px); /* 2개씩 배치 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.review-card h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+.review-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #777;
+}
+
+/* 캘린더 스타일 */
+.react-calendar {
+  width: 100% !important;
+  max-width: 600px;
+  font-size: 18px;
+  background-color: #f9fbff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #cfe0f5;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.react-calendar__tile {
+  padding: 12px 6px;
+  border-radius: 10px;
+}
+
+.react-calendar__tile--now {
+  background: #007bff30 !important;
+}
+
+.react-calendar__tile--active {
+  background: #0077cc !important;
+  color: white !important;
+}
+
+.react-calendar__tile:hover {
+  background: #d0e8ff;
+}
+
+/* 감정 기록이 있는 날짜 셀 */
+.calendar-emotion {
+  background-color: #dbeeff;
+  color: #003366;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 4px 2px;
+  margin-top: 2px;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 날짜 클릭 시 나오는 기록 폼 */
+.calendar-form {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #f0f6ff;
+  border: 1px solid #cfe0f5;
+  border-radius: 10px;
+  max-width: 500px;
+}
+
+.calendar-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.calendar-form button {
+  padding: 10px 16px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
