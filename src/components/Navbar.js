@@ -24,7 +24,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <p>hackathon</p>
+        <p>GoAI양</p>
       </div>
 
       <ul className="navbar-links">
@@ -44,7 +44,7 @@ function Navbar() {
                   border: 'none',
                   fontWeight: '700',
                   padding: '6px 14px',
-                  color: '#5391d9',
+                  color: '#26a69a',
                   cursor: 'pointer',
                   textDecoration: 'underline',
                 }}

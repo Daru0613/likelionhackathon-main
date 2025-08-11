@@ -1,5 +1,6 @@
 .mypage-container {
   padding: 20px;
+  background-color: #ffffff;
 }
 
 /* 프로필 영역 */
@@ -7,9 +8,10 @@
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  border: 3px solid #0077cc;
+  border: 3px solid #26a69a;
   padding: 10px;
   border-radius: 10px;
+  background-color: #fefefe;
 }
 
 .profile-icon-box {
@@ -18,11 +20,12 @@
 
 .profile-icon {
   font-size: 60px;
-  color: #555;
+  color: #444;
 }
 
 .profile-info-box p {
   margin: 4px 0;
+  color: #222;
 }
 
 /* 마이페이지 레이아웃 */
@@ -33,13 +36,13 @@
 .mypage-sidebar {
   width: 200px;
   padding-right: 20px;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid #000;
 }
 
 .mypage-sidebar p {
   cursor: pointer;
   margin: 10px 0;
-  color: #0077cc;
+  color: #222;
 }
 
 .mypage-content {
@@ -66,11 +69,11 @@
 }
 
 .review-card {
-  background-color: #f9f9f9;
-  border: 3px solid #0077cc;
+  background-color: #ffffff;
+  border: 3px solid #26a69a;
   border-radius: 12px;
   padding: 16px;
-  width: calc(50% - 8px); /* 2개씩 배치 */
+  width: calc(50% - 8px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -89,7 +92,7 @@
 .review-card p {
   margin: 0;
   font-size: 14px;
-  color: #777;
+  color: #666;
 }
 
 /* 캘린더 스타일 */
@@ -97,10 +100,10 @@
   width: 100% !important;
   max-width: 600px;
   font-size: 18px;
-  background-color: #f9fbff;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid #cfe0f5;
+  border: 1px solid #26a69a;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -110,22 +113,22 @@
 }
 
 .react-calendar__tile--now {
-  background: #007bff30 !important;
+  background: #26a69a22 !important;
 }
 
 .react-calendar__tile--active {
-  background: #0077cc !important;
+  background: #26a69a !important;
   color: white !important;
 }
 
 .react-calendar__tile:hover {
-  background: #d0e8ff;
+  background: #b2dfdb;
 }
 
 /* 감정 기록이 있는 날짜 셀 */
 .calendar-emotion {
-  background-color: #dbeeff;
-  color: #003366;
+  background-color: #e0f2f1;
+  color: #004d40;
   font-weight: 500;
   border-radius: 8px;
   padding: 4px 2px;
@@ -139,25 +142,42 @@
 .calendar-form {
   margin-top: 20px;
   padding: 16px;
-  background-color: #f0f6ff;
-  border: 1px solid #cfe0f5;
+  background-color: #f8fbfb;
+  border: 1px solid #26a69a;
   border-radius: 10px;
   max-width: 500px;
 }
 
 .calendar-form input {
   display: block;
-  width: 100%;
+  width: 90%;
   margin-bottom: 8px;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
 }
+.calendar-form select {
+  display: block;
+  width: 90%;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  color: #333;
+  appearance: none; /* 기본 화살표 제거 (브라우저마다 다르게 보이는 것 방지) */
+}
 
+.calendar-form select:focus {
+  outline: none;
+  border-color: #26a69a;
+  box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.2);
+}
 .calendar-form button {
   padding: 10px 16px;
-  background-color: #0077cc;
+  background-color: #26a69a;
   color: white;
   border: none;
   border-radius: 6px;

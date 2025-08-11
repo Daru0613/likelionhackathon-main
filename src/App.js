@@ -11,6 +11,7 @@ import EditPostPage from './pages/EditPostPage'
 import DeletePostPage from './pages/DeletePostPage'
 import EditCommentPage from './pages/EditCommentPage'
 import MyPage from './pages/Mypage'
+import Introduce from './pages/Introduce'
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/" element={<Mainpage />} />
+          <Route path="/" element={<Introduce />} />
+          <Route path="/mainpage" element={<Mainpage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/find" element={<FindAccount />} />

@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Pretendard", sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .find-account-box {
@@ -50,13 +50,13 @@
   transition: border 0.14s, box-shadow 0.13s;
 }
 .find-box input:focus {
-  border: 1.5px solid #5391d9;
+  border: 1.5px solid #26a69a;
   outline: none;
   background: #fff;
 }
 .send-code-btn {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -69,12 +69,12 @@
   box-shadow: 0 2px 8px #ebf1f9;
 }
 .send-code-btn:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 .reset-password-btn {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -87,12 +87,12 @@
   box-shadow: 0 2px 8px #ebf1f9;
 }
 .reset-password-btn:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 .find-box button {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -104,7 +104,7 @@
   box-shadow: 0 2px 8px #ebf1f9;
 }
 .find-box button:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 
@@ -120,7 +120,7 @@
 }
 
 .find-account-container a {
-  color: #5391d9;
+  color: #26a69a;
   font-weight: bold;
   text-decoration: underline;
   transition: color 0.14s;

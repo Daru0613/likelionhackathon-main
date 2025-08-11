@@ -22,7 +22,7 @@
 .title {
   font-size: 2.1rem;
   font-weight: 900;
-  color: #5391d9;
+  color: #26a69a;
   margin-bottom: 10px;
   letter-spacing: -2px;
 }
@@ -43,7 +43,7 @@
 
 .form-group label {
   font-weight: 700;
-  color: #5391d9;
+  color: #26a69a;
   margin-bottom: 7px;
   font-size: 1.01rem;
 }
@@ -58,7 +58,7 @@
   transition: border 0.14s, box-shadow 0.13s;
 }
 .form-group input:focus {
-  border: 1.5px solid #5391d9;
+  border: 1.5px solid #26a69a;
   outline: none;
   background: #fff;
 }
@@ -72,7 +72,7 @@
 
 .login-btn {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -84,7 +84,7 @@
   box-shadow: 0 2px 8px rgba(255, 183, 206, 0.09);
 }
 .login-btn:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 
@@ -107,7 +107,7 @@ hr {
 }
 
 .footer a {
-  color: #5391d9;
+  color: #26a69a;
   text-decoration: underline;
   font-weight: bold;
   margin-left: 2px;

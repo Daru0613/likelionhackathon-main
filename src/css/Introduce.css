@@ -1,0 +1,65 @@
+.introduce-container {
+  padding: 40px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #f0f4ff, #ffffff);
+  min-height: 100vh;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.feature-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 280px;
+  padding: 20px;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.start-button {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  background-color: #36bdaf;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-button:hover {
+  background-color: #26a69a;
+}

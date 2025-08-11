@@ -2,39 +2,31 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../css/Login.css'
 
-// (공통) 도메인과 기능에 api가 붙는 이유: cannot GET 오류를 해결하기 위해 백엔드 처리를 함, 안 붙어있으면 백엔드(nginx, express 등)에서 받지 않고 React에서 index.html로 처리 -> 기능과 페이지 이동을 구분하기 위해 사용
-
 const Login = () => {
   const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!userId || !password) {
       alert('아이디와 비밀번호를 모두 입력해주세요.')
       return
     }
 
-    try {
-      const response = await fetch('https://joongbu.store/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          iduser: userId,
-          userpw: password,
-        }),
-      })
-      const data = await response.json()
-      if (response.ok) {
-        localStorage.setItem('userId', data.iduser) // 로그인 상태 저장
-        alert('로그인 성공!')
-        navigate('/')
-      } else {
-        alert(data.error || '아이디 또는 비밀번호가 올바르지 않습니다.')
-      }
-    } catch (err) {
-      alert('서버 오류')
+    // 로컬에 저장된 회원 정보 가져오기
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || []
+
+    // 입력한 정보와 일치하는 사용자 찾기
+    const user = storedUsers.find(
+      (u) => u['회원id'] === userId && u['비밀번호'] === password
+    )
+
+    if (user) {
+      localStorage.setItem('userId', userId) // 로그인 상태 저장
+      alert('로그인 성공!')
+      navigate('/mainpage')
+    } else {
+      alert('아이디 또는 비밀번호가 올바르지 않습니다.')
     }
   }
 
@@ -77,6 +69,8 @@ const Login = () => {
           <Link to="/signup">회원가입</Link>
           <br />
           <Link to="/find">아이디/비밀번호 찾기</Link>
+          <br />
+          <Link to="/users">관리자</Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 .signup-wrapper {
   min-height: 100vh;
-  background: white; /* 블랙 배경 */
+  background: white;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,7 +22,7 @@
 .signup-container h1 {
   font-size: 2rem;
   font-weight: 900;
-  color: #5391d9;
+  color: #26a69a; /* 청록색 */
   margin-bottom: 26px;
   letter-spacing: -2px;
 }
@@ -40,7 +40,7 @@ form {
 
 .form-group label {
   font-weight: 700;
-  color: #5391d9;
+  color: #26a69a;
   margin-bottom: 7px;
   font-size: 1.01rem;
 }
@@ -57,7 +57,7 @@ form {
 }
 .form-group input:focus,
 .form-group select:focus {
-  border: 1.5px solid #5391d9;
+  border: 1.5px solid #26a69a;
   outline: none;
   background: #fff;
 }
@@ -70,7 +70,7 @@ form {
 }
 .verify-code-btn {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -80,16 +80,16 @@ form {
   margin-top: 5px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  box-shadow: 0 2px 8px rgba(255, 183, 206, 0.1);
+  box-shadow: 0 2px 8px rgba(43, 187, 173, 0.1);
 }
 .verify-code-btn:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 
 .signup-btn {
   width: 100%;
-  background: #5391d9;
+  background: #26a69a;
   color: #fff;
   font-weight: 900;
   font-size: 1.08rem;
@@ -98,10 +98,10 @@ form {
   padding: 13px 0;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  box-shadow: 0 2px 8px rgba(255, 183, 206, 0.1);
+  box-shadow: 0 2px 8px rgba(43, 187, 173, 0.1);
 }
 .signup-btn:hover {
-  background: #6b96db;
+  background: #2bbbad;
   color: black;
 }
 
@@ -120,7 +120,7 @@ form {
   color: #232025;
 }
 .signup-footer a {
-  color: #5391d9;
+  color: #26a69a;
   text-decoration: underline;
   font-weight: bold;
   margin-left: 2px;

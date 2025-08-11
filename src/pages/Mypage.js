@@ -57,7 +57,7 @@ const MyPage = () => {
             감정 히스토리
           </p>
           <p onClick={() => setSelectedContent('추천 힐링 스팟')}>
-            내가 추천받은 힐링 스팟
+            나에게 도움이된 힐링 스팟
           </p>
           <p onClick={() => setSelectedContent('내가 작성한 후기')}>
             내가 작성한 후기
@@ -90,6 +90,7 @@ const MyPage = () => {
               {selectedDate && (
                 <div className="calendar-form">
                   <h4>{selectedDate.toISOString().slice(0, 10)} 기록 추가</h4>
+
                   <input
                     type="text"
                     placeholder="장소명 입력"
@@ -98,14 +99,37 @@ const MyPage = () => {
                       setNewSpot({ ...newSpot, name: e.target.value })
                     }
                   />
-                  <input
-                    type="text"
-                    placeholder="감정 상태 (예: 우울 → 안정)"
-                    value={newSpot.emotion}
+
+                  {/* 이전 감정 Select */}
+                  <select
+                    value={newSpot.beforeEmotion || ''}
                     onChange={(e) =>
-                      setNewSpot({ ...newSpot, emotion: e.target.value })
+                      setNewSpot({ ...newSpot, beforeEmotion: e.target.value })
                     }
-                  />
+                  >
+                    <option value="">이전 감정 선택</option>
+                    <option value="우울">우울</option>
+                    <option value="불안">불안</option>
+                    <option value="분노">분노</option>
+                    <option value="지침">지침</option>
+                    <option value="슬픔">슬픔</option>
+                  </select>
+
+                  {/* 이후 감정 Select */}
+                  <select
+                    value={newSpot.afterEmotion || ''}
+                    onChange={(e) =>
+                      setNewSpot({ ...newSpot, afterEmotion: e.target.value })
+                    }
+                  >
+                    <option value="">이후 감정 선택</option>
+                    <option value="기쁨">기쁨</option>
+                    <option value="안정">안정</option>
+                    <option value="행복">행복</option>
+                    <option value="감사">감사</option>
+                    <option value="평온">평온</option>
+                  </select>
+
                   <button onClick={handleSaveRecord}>기록 저장</button>
                 </div>
               )}
@@ -139,12 +163,21 @@ const MyPage = () => {
           {/* 추천 힐링 스팟 */}
           {selectedContent === '추천 힐링 스팟' && (
             <div>
-              <p>AI가 추천해준 고양시 내 힐링 스팟 목록입니다.</p>
-              <ul>
-                <li>일산 호수공원 - 자연 속 산책</li>
-                <li>고양 스타필드 북카페 - 조용한 독서</li>
-                <li>장항습지 - 명상하기 좋은 장소</li>
-              </ul>
+              <p>지도 핀</p>
+              <div
+                style={{
+                  width: '100%',
+                  height: '200px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  color: '#999',
+                }}
+              >
+                지도 핀 자리
+              </div>
             </div>
           )}
 
