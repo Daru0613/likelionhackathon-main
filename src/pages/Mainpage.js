@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import './App.css'
+import '../css/Mainpage.css'
 
 function App() {
   const [messages, setMessages] = useState([])
