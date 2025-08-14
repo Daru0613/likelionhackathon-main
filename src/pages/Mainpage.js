@@ -24,7 +24,7 @@ function App() {
     try {
       const timeoutId = setTimeout(() => controller.abort(), 5000)
 
-      const res = await fetch('http://34.64.161.0:8000/analyze', {
+      const res = await fetch('/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
