@@ -163,7 +163,7 @@ const MyPage = () => {
           {/* 추천 힐링 스팟 */}
           {selectedContent === '추천 힐링 스팟' && (
             <div>
-              <p>지도 핀</p>
+              <p>리스트</p>
               <div
                 style={{
                   width: '100%',
@@ -176,7 +176,7 @@ const MyPage = () => {
                   color: '#999',
                 }}
               >
-                지도 핀 자리
+                리스트
               </div>
             </div>
           )}

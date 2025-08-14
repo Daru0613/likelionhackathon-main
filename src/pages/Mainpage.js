@@ -1,110 +1,146 @@
-import React, { useState, useEffect, useRef } from 'react'
-import '../css/Mainpage.css' // 스타일 따로 관리
+import React, { useState, useRef, useEffect } from 'react'
+import './App.css'
 
-const Mainpage = () => {
+function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const chatEndRef = useRef(null)
+  const abortControllerRef = useRef(null)
+  const chatContainerRef = useRef(null) // chat-container 참조
+  const bottomRef = useRef(null)
 
-  const dummyEmotions = ['행복', '슬픔', '분노', '불안', '기쁨', '평온']
-  const dummyPlaces = [
-    {
-      name: '한강공원',
-      category: '자연',
-      address: '서울시 강남구',
-    },
-    {
-      name: '감성 카페 휴',
-      category: '카페',
-      address: '서울시 마포구',
-    },
-    {
-      name: '마음챙김 명상센터',
-      category: '힐링',
-      address: '서울시 서초구',
-    },
-    {
-      name: '책과 음악',
-      category: '북카페',
-      address: '서울시 종로구',
-    },
-  ]
+  const sendMessage = async () => {
+    const text = input.trim()
+    if (!text) return
 
-  const getRandomItem = (array) =>
-    array[Math.floor(Math.random() * array.length)]
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
 
-  const sendMessage = () => {
-    if (!input.trim()) return
-
-    const userMessage = { role: 'user', content: input }
-    setMessages((prev) => [...prev, userMessage])
-
-    // 더미 응답 생성
-    setTimeout(() => {
-      const botMessage = {
-        role: 'bot',
-        content: `"${input}" 에 대한 감정을 분석했어요!`,
-        emotion: getRandomItem(dummyEmotions),
-        places: [getRandomItem(dummyPlaces), getRandomItem(dummyPlaces)],
-      }
-      setMessages((prev) => [...prev, botMessage])
-    }, 500)
-
+    setMessages((prev) => [...prev, { type: 'user', text }])
     setInput('')
+
+    try {
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      const res = await fetch('http://127.0.0.1:5000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      const contentType = res.headers.get('content-type') || ''
+      const resClone = res.clone()
+
+      if (!contentType.includes('application/json')) {
+        const rawText = await resClone.text()
+        throw new Error(
+          `서버에서 JSON이 아닌 응답을 받았습니다. (원문: ${rawText})`
+        )
+      }
+
+      let data
+      try {
+        data = await res.json()
+      } catch {
+        const rawText = await resClone.text()
+        throw new Error(`JSON 파싱 실패 (원문 응답: ${rawText})`)
+      }
+
+      const botReply =
+        data.bot_reply || '⚠ 감정을 이해하지 못했습니다. 다시 알려주세요.'
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: 'bot',
+          text: botReply,
+          places: Array.isArray(data.places) ? data.places : [],
+        },
+      ])
+    } catch (err) {
+      let errorMessage = '⚠ 서버 연결 실패. 서버가 켜져 있는지 확인하세요.'
+      if (err.name === 'AbortError') {
+        errorMessage = '⚠ 요청 시간이 초과되었습니다. 다시 시도하세요.'
+      } else if (err.message) {
+        errorMessage = `⚠ 오류: ${err.message}`
+      }
+
+      setMessages((prev) => [...prev, { type: 'bot', text: errorMessage }])
+    }
   }
 
+  // 메시지 추가될 때 chat-container 내부 스크롤 맨 아래로
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
   }, [messages])
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   return (
     <div className="app-wrapper">
-      <div className="chat-container">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`message-wrapper ${
-              msg.role === 'user' ? 'user' : 'bot'
-            }`}
-          >
-            <div
-              className={`${
-                msg.role === 'user' ? 'user-message' : 'bot-message'
-              }`}
-            >
-              {msg.content}
-              {msg.emotion && (
-                <div className="meta-info">
-                  <p className="emotion">감정: {msg.emotion}</p>
-                  {msg.places && msg.places.length > 0 && (
-                    <ul className="place-list">
-                      {msg.places.map((place, i) => (
-                        <li key={i}>
-                          {place.name} ({place.category}) - {place.address}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+      <div className="chat-container" ref={chatContainerRef}>
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message-wrapper ${msg.type}`}>
+            <div className={`${msg.type}-message`}>
+              {msg.text &&
+                msg.text
+                  .split('\n')
+                  .map((line, i) => <div key={i}>{line}</div>)}
+
+              {msg.places && msg.places.length > 0 && (
+                <div className="places-container">
+                  {msg.places.map((place, i) => (
+                    <div key={i} className="place-card">
+                      <h4 className="place-name">{place.name}</h4>
+                      <p className="place-address">{place.address}</p>
+                      <p className="place-phone">{place.phone}</p>
+                      <a
+                        href={place.page_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="place-button"
+                      >
+                        자세히 보기
+                      </a>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
           </div>
         ))}
-        <div ref={chatEndRef} />
+        <div ref={bottomRef} />
       </div>
 
       <div className="input-section">
         <input
-          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          placeholder="기분을 말하거나 '감정 체크'라고 입력해보세요!"
+          placeholder="오늘의 감정은 어떠신가요?"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              sendMessage()
+            }
+          }}
         />
-        <button onClick={sendMessage}>보내기</button>
+        <button onClick={sendMessage}>전송</button>
       </div>
     </div>
   )
 }
 
-export default Mainpage
+export default App
