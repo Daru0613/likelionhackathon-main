@@ -20,7 +20,7 @@ const port = 3001
 // CORS 설정 (react 앱에서 API 호출을 위해 사용)
 app.use(
   cors({
-    origin: 'https://joongbu.store', // 허용할 도메인
+    origin: 'https://goaiyang.site', // 허용할 도메인
     credentials: true, // 쿠키 허용 여부
   })
 )

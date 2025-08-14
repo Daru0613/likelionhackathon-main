@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../css/Login.css'
 
@@ -6,6 +6,14 @@ const Login = () => {
   const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
+
+  // 이미 로그인된 사용자는 로그인 페이지에 들어올 수 없음 → 메인페이지로 리다이렉트
+  useEffect(() => {
+    const loginUser = localStorage.getItem('userId')
+    if (loginUser) {
+      navigate('/mainpage')
+    }
+  }, [navigate])
 
   const handleLogin = async () => {
     if (!userId || !password) {
@@ -21,6 +29,7 @@ const Login = () => {
       const data = await res.json()
       if (res.ok) {
         alert('로그인 성공!')
+        localStorage.setItem('userId', userId)
         navigate('/mainpage')
       } else {
         alert(data.error || '아이디 또는 비밀번호가 올바르지 않습니다.')
