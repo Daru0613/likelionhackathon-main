@@ -24,7 +24,7 @@ function App() {
     try {
       const timeoutId = setTimeout(() => controller.abort(), 5000)
 
-      const res = await fetch('/ai/analyze', {
+      const res = await fetch('https://ai.goaiyang.site/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
