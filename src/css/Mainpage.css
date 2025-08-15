@@ -104,6 +104,9 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   animation: fadeInUp 0.25s ease-out;
   position: relative;
+
+  /* 줄바꿈 표시를 위한 CSS */
+  white-space: pre-wrap;
 }
 
 .user-message {

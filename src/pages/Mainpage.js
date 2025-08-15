@@ -94,11 +94,11 @@ function App() {
       <div className="chat-container" ref={chatContainerRef}>
         {messages.map((msg, idx) => (
           <div key={idx} className={`message-wrapper ${msg.type}`}>
-            <div className={`${msg.type}-message`}>
-              {msg.text &&
-                msg.text
-                  .split('\n')
-                  .map((line, i) => <div key={i}>{line}</div>)}
+            <div
+              className={`${msg.type}-message`}
+              style={{ whiteSpace: 'pre-wrap' }}
+            >
+              {msg.text}
 
               {msg.places && msg.places.length > 0 && (
                 <div className="places-container">
