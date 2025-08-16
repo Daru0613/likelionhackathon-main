@@ -98,7 +98,12 @@ function App() {
               className={`${msg.type}-message`}
               style={{ whiteSpace: 'pre-wrap' }}
             >
-              {msg.text}
+              {msg.text.split('\n').map((line, i) => (
+                <React.Fragment key={i}>
+                  {line}
+                  <br />
+                </React.Fragment>
+              ))}
 
               {msg.places && msg.places.length > 0 && (
                 <div className="places-container">
