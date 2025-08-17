@@ -160,27 +160,6 @@ const MyPage = () => {
             </div>
           )}
 
-          {/* 추천 힐링 스팟 */}
-          {selectedContent === '추천 힐링 스팟' && (
-            <div>
-              <p>리스트</p>
-              <div
-                style={{
-                  width: '100%',
-                  height: '200px',
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  color: '#999',
-                }}
-              >
-                리스트
-              </div>
-            </div>
-          )}
-
           {/* 내가 작성한 후기 */}
           {selectedContent === '내가 작성한 후기' && (
             <div>
