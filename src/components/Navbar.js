@@ -11,11 +11,11 @@ function Navbar() {
   useEffect(() => {
     const userId = localStorage.getItem('userId')
     setIsLoggedIn(!!userId) // userId가 있으면 true, 없으면 false
-  }, [location]) // 경로가 바뀔 때마다 상태 체크
+  }, [location]) // 경로 변경시마다 체크
 
   // 로그아웃 처리
   const handleLogout = () => {
-    localStorage.removeItem('userId') // 로그인 시 저장한 키 삭제
+    localStorage.removeItem('userId')
     setIsLoggedIn(false)
     alert('로그아웃 되었습니다.')
     navigate('/login')
@@ -24,13 +24,20 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <p>GoAI양</p>
+        <Link
+          to="/mainpage"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          GoAI양
+        </Link>
       </div>
 
       <ul className="navbar-links">
-        <li>
-          <Link to="/boardpage">커뮤니티</Link>
-        </li>
+        {isLoggedIn && (
+          <li>
+            <Link to="/boardpage">커뮤니티</Link>
+          </li>
+        )}
         {isLoggedIn ? (
           <>
             <li>

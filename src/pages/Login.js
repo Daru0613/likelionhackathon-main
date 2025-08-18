@@ -23,6 +23,7 @@ const Login = () => {
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'include', // ← 반드시 추가!
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ iduser: userId, userpw: password }),
       })
@@ -42,7 +43,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1 className="title">hackathon</h1>
+        <h1 className="title">GoAI양</h1>
         <h2 className="subtitle">로그인</h2>
         <div className="form-group">
           <label>아이디</label>
