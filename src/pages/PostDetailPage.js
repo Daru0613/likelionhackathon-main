@@ -1,68 +1,118 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom' // useNavigate 추가
+import React, { useState, useEffect } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import '../css/PostPage.css'
 
 const PostDetailPage = () => {
+  const { id } = useParams()
+  const [post, setPost] = useState(null)
   const [comment, setComment] = useState('')
-  const [comments, setComments] = useState([
-    { id: 1, author: 'user456', text: '이 게시글 정말 좋아요!' },
-    { id: 2, author: 'admin', text: '관리자가 남긴 댓글' },
-  ])
+  const [comments, setComments] = useState([])
 
-  const currentUserId = 'user123' // 현재 로그인한 사용자 ID
-  const currentUserRole = 'user' // 또는 "admin"
+  // 로그인 사용자 iduser를 로컬스토리지에서 불러오는 예시
+  const currentUserId = localStorage.getItem('userId') || ''
+  const navigate = useNavigate()
 
-  const navigate = useNavigate() // 페이지 이동용 훅
+  const fetchPost = async () => {
+    try {
+      const res = await fetch(`https://goaiyang.site/api/posts/${id}`, {
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (res.ok) setPost(data)
+      else alert('게시글 조회 실패')
+    } catch {
+      alert('서버 오류')
+    }
+  }
 
-  const handleAddComment = () => {
+  const fetchComments = async () => {
+    try {
+      const res = await fetch('https://goaiyang.site/api/comments', {
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (res.ok) setComments(data.filter((c) => c.post_id === Number(id)))
+      else alert('댓글 조회 실패')
+    } catch {
+      alert('서버 오류')
+    }
+  }
+
+  useEffect(() => {
+    fetchPost()
+    fetchComments()
+  }, [id])
+
+  const handleAddComment = async () => {
     if (!comment.trim()) {
       alert('댓글을 입력해주세요.')
       return
     }
-
-    const newComment = {
-      id: Date.now(),
-      author: currentUserId,
-      text: comment,
+    try {
+      const res = await fetch('https://goaiyang.site/api/comments', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: Number(id), content: comment }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setComment('')
+        fetchComments()
+      } else alert(data.error || '댓글 작성 실패')
+    } catch {
+      alert('서버 오류')
     }
-
-    setComments([newComment, ...comments])
-    setComment('')
   }
 
-  const handleDeleteComment = (id, author) => {
-    const isAuthorized = currentUserId === author || currentUserRole === 'admin'
-
-    if (!isAuthorized) {
+  const handleDeleteComment = async (commentId, author) => {
+    if (currentUserId !== author) {
       alert('❌ 삭제할 권한이 없습니다.')
       return
     }
-
     const confirmed = window.confirm('정말 삭제하시겠습니까?')
     if (!confirmed) return
 
-    const updatedComments = comments.filter((c) => c.id !== id)
-    setComments(updatedComments)
-
-    alert('✅ 삭제되었습니다.')
-    navigate('/postdetailpage') // 삭제 후 이동
+    try {
+      const res = await fetch(
+        `https://goaiyang.site/api/comments/${commentId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
+      if (res.ok) {
+        alert('✅ 삭제되었습니다.')
+        fetchComments()
+      } else {
+        alert('삭제 실패')
+      }
+    } catch {
+      alert('서버 오류')
+    }
   }
+
+  if (!post) return <div>로딩 중...</div>
 
   return (
     <div className="container">
       <h2>게시글 상세</h2>
 
       <div className="post-box">
-        <h3>게시글 제목</h3>
-        <p>게시글 내용이 여기에 표시됩니다.</p>
-        <p>작성자: user123</p>
+        <h3>{post.title}</h3>
+        <p>{post.content}</p>
+        <p>작성자: {post.author}</p>
 
-        <Link to="/editpostpage">
-          <button>수정</button>
-        </Link>
-        <Link to="/deletepostpage">
-          <button>삭제</button>
-        </Link>
+        {currentUserId === post.author && (
+          <Link to={`/editpostpage/${id}`}>
+            <button>수정</button>
+          </Link>
+        )}
+        {currentUserId === post.author && (
+          <Link to={`/deletepostpage/${id}`}>
+            <button>삭제</button>
+          </Link>
+        )}
       </div>
 
       <hr />
@@ -79,19 +129,27 @@ const PostDetailPage = () => {
 
       <div className="comment-list">
         <h4>댓글 목록</h4>
-        {comments.map((c) => (
-          <div key={c.id} className="comment-item">
-            <p>
-              {c.author}: {c.text}
-            </p>
-            <Link to="/editcommentpage">
-              <button>수정</button>
-            </Link>
-            <button onClick={() => handleDeleteComment(c.id, c.author)}>
-              삭제
-            </button>
-          </div>
-        ))}
+        {comments.length === 0 ? (
+          <p>작성된 댓글이 없습니다.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="comment-item">
+              <p>
+                {c.author}: {c.content}
+              </p>
+              {currentUserId === c.author && (
+                <>
+                  <Link to={`/editcommentpage/${c.id}`}>
+                    <button>수정</button>
+                  </Link>
+                  <button onClick={() => handleDeleteComment(c.id, c.author)}>
+                    삭제
+                  </button>
+                </>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
