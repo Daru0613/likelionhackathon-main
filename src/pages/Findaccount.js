@@ -31,7 +31,7 @@ const FindPassword = () => {
     setLoading(true)
     try {
       const response = await fetch(
-        'https://joongbu.store/api/send-reset-code',
+        'https://goaiyang.site/api/send-reset-code',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -73,7 +73,7 @@ const FindPassword = () => {
     setLoading(true)
     try {
       const response = await fetch(
-        'https://joongbu.store/api/verify-reset-code',
+        'https://goaiyang.site/api/verify-reset-code',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -108,7 +108,7 @@ const FindPassword = () => {
     }
     setLoading(true)
     try {
-      const response = await fetch('https://joongbu.store/api/reset-password', {
+      const response = await fetch('https://goaiyang.site/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
