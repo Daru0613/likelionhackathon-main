@@ -1,20 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import '../css/Mainpage.css'
 
-function Mainpage() {
+function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const abortControllerRef = useRef(null)
   const chatContainerRef = useRef(null) // chat-container 참조
   const bottomRef = useRef(null)
-
-  // 로그인 체크 및 리다이렉트
-  useEffect(() => {
-    const userId = localStorage.getItem('userId')
-    if (!userId) {
-      alert('로그인이 필요합니다.')
-      window.location.href = '/login' // 혹은 React Router navigate 활용 가능
-    }
-  }, [])
 
   const sendMessage = async () => {
     const text = input.trim()
@@ -77,7 +69,6 @@ function Mainpage() {
       } else if (err.message) {
         errorMessage = `⚠ 오류: ${err.message}`
       }
-
       setMessages((prev) => [...prev, { type: 'bot', text: errorMessage }])
     }
   }
@@ -159,4 +150,4 @@ function Mainpage() {
   )
 }
 
-export default Mainpage
+export default App

@@ -24,10 +24,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link
-          to="/mainpage"
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           GoAI양
         </Link>
       </div>
