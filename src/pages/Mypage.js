@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../css/MyPage.css'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
 
 const MyPage = () => {
   const [selectedContent, setSelectedContent] = useState('힐링 기록 보기')
@@ -19,12 +20,62 @@ const MyPage = () => {
   const [selectedDate, setSelectedDate] = useState(null)
   const [newSpot, setNewSpot] = useState({ name: '', emotion: '' })
 
+  // 사용자 정보 상태 추가
+  const [userProfile, setUserProfile] = useState({ iduser: '', email: '' })
+  const navigate = useNavigate()
+
+  // 사용자 정보 불러오기 (로컬스토리지 userId 활용)
+  useEffect(() => {
+    const userId = localStorage.getItem('userId')
+    if (!userId) {
+      alert('로그인이 필요합니다.')
+      navigate('/login')
+      return
+    }
+    fetch(`/api/users/${userId}`, { credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error('사용자 정보 불러오기 실패')
+        return res.json()
+      })
+      .then((data) =>
+        setUserProfile({ iduser: data.iduser, email: data.email })
+      )
+      .catch(() => {
+        alert('사용자 정보 로드 실패. 다시 로그인해주세요.')
+        navigate('/login')
+      })
+  }, [navigate])
+
   const handleSaveRecord = () => {
     if (!newSpot.name || !newSpot.emotion) return
     const newDate = selectedDate.toISOString().slice(0, 10)
     setDummySpots([...dummySpots, { ...newSpot, date: newDate }])
     setNewSpot({ name: '', emotion: '' })
     setSelectedDate(null)
+  }
+
+  // 회원 탈퇴 수정
+  const handleWithdraw = () => {
+    if (
+      !window.confirm(
+        '정말 회원 탈퇴를 진행하시겠습니까? 모든 데이터가 삭제됩니다.'
+      )
+    )
+      return
+
+    fetch('/api/users/me', {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('회원 탈퇴 실패')
+        alert('성공적으로 탈퇴되었습니다.')
+        localStorage.removeItem('userId')
+        navigate('/login')
+      })
+      .catch(() => {
+        alert('회원 탈퇴 중 오류가 발생했습니다.')
+      })
   }
 
   return (
@@ -37,13 +88,10 @@ const MyPage = () => {
         </div>
         <div className="profile-info-box">
           <p>
-            <strong>이름:</strong> 사용자
+            <strong>이름:</strong> {userProfile.iduser || '사용자'}
           </p>
           <p>
-            <strong>이메일:</strong> example@goyang.com
-          </p>
-          <p>
-            <strong>가입일:</strong> 2025-07-01
+            <strong>이메일:</strong> {userProfile.email || 'example@goyang.com'}
           </p>
         </div>
       </div>
@@ -187,7 +235,9 @@ const MyPage = () => {
               >
                 ⚠️ 탈퇴 시 모든 감정 기록 및 힐링 히스토리가 삭제됩니다.
               </p>
-              <button className="withdraw-button">회원 탈퇴</button>
+              <button className="withdraw-button" onClick={handleWithdraw}>
+                회원 탈퇴
+              </button>
             </div>
           )}
         </div>
