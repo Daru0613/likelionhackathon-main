@@ -15,19 +15,31 @@ exports.createPost = (req, res) => {
   )
 }
 
-// ✅ 전체 글 조회
+// ✅ 전체 글 조회 (작성자 iduser 포함)
 exports.getAllPosts = (req, res) => {
-  db.query('SELECT * FROM posts ORDER BY created_at DESC', (err, results) => {
+  const sql = `
+    SELECT posts.*, users.iduser AS author
+    FROM posts
+    LEFT JOIN users ON posts.user_id = users.id
+    ORDER BY posts.created_at DESC
+  `
+  db.query(sql, (err, results) => {
     if (err) return res.status(500).send('DB Error')
     res.send(results)
   })
 }
 
-// ✅ 특정 글 조회
+// ✅ 특정 글 조회 (작성자 iduser 포함)
 exports.getPostById = (req, res) => {
   const postId = req.params.id
 
-  db.query('SELECT * FROM posts WHERE id = ?', [postId], (err, results) => {
+  const sql = `
+    SELECT posts.*, users.iduser AS author
+    FROM posts
+    LEFT JOIN users ON posts.user_id = users.id
+    WHERE posts.id = ?
+  `
+  db.query(sql, [postId], (err, results) => {
     if (err) return res.status(500).send('DB Error')
     if (results.length === 0) return res.status(404).send('Post not found')
     res.send(results[0])

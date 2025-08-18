@@ -57,28 +57,32 @@ exports.deleteComment = (req, res) => {
   })
 }
 
-// ✅ 전체 댓글 조회
+// ✅ 전체 댓글 조회 (작성자 iduser 포함)
 exports.getAllComments = (req, res) => {
-  db.query(
-    'SELECT * FROM comments ORDER BY created_at DESC',
-    (err, results) => {
-      if (err) return res.status(500).send('DB Error')
-      res.send(results)
-    }
-  )
+  const sql = `
+    SELECT comments.*, users.iduser AS author
+    FROM comments
+    LEFT JOIN users ON comments.user_id = users.id
+    ORDER BY comments.created_at DESC
+  `
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).send('DB Error')
+    res.send(results)
+  })
 }
 
-// ✅ 특정 댓글 조회
+// ✅ 특정 댓글 조회 (작성자 iduser 포함)
 exports.getCommentById = (req, res) => {
   const commentId = req.params.id
-
-  db.query(
-    'SELECT * FROM comments WHERE id = ?',
-    [commentId],
-    (err, results) => {
-      if (err) return res.status(500).send('DB Error')
-      if (results.length === 0) return res.status(404).send('Comment not found')
-      res.send(results[0])
-    }
-  )
+  const sql = `
+    SELECT comments.*, users.iduser AS author
+    FROM comments
+    LEFT JOIN users ON comments.user_id = users.id
+    WHERE comments.id = ?
+  `
+  db.query(sql, [commentId], (err, results) => {
+    if (err) return res.status(500).send('DB Error')
+    if (results.length === 0) return res.status(404).send('Comment not found')
+    res.send(results[0])
+  })
 }
