@@ -9,10 +9,7 @@ const session = require('express-session') // 세션 관리
 const pool = require('./mysql') // MySQL 연결
 const transporter = require('./mailer') // nodemailer 설정
 const path = require('path')
-
-// (공통) 도메인과 기능에 api가 붙는 이유: cannot GET 오류를 해결하기 위해 백엔드 처리를 함,
-// 안 붙어있으면 백엔드(nginx, express 등)에서 받지 않고 React에서 index.html로 처리 ->
-// 기능과 페이지 이동을 구분하기 위해 사용
+const { isAuthenticated } = require('./auth') // auth.js에서 isAuthenticated 함수 임포트
 
 const app = express()
 const port = 3001
@@ -39,7 +36,6 @@ app.use(
 
 // 인증코드 생성 함수
 function generateCode(length = 6) {
-  // 6자리 숫자 인증코드 생성
   return Math.random()
     .toString()
     .slice(2, 2 + length)
@@ -259,6 +255,31 @@ app.post('/api/reset-password', async (req, res) => {
 const unifiedRouter = require('./routes.js')
 
 app.use('/api', unifiedRouter) // 모든 라우팅을 /api 하위에서 처리
+
+// 사용자 정보 조회 API 추가 (isAuthenticated 사용)
+app.get('/api/users/:userId', isAuthenticated, (req, res) => {
+  const userId = req.params.userId
+  const query = 'SELECT iduser, email FROM users WHERE id = ?'
+  pool.query(query, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message })
+    if (results.length === 0)
+      return res.status(404).json({ error: '사용자 없음' })
+    res.json(results[0])
+  })
+})
+
+// 회원 탈퇴 API 추가 (isAuthenticated 사용)
+app.delete('/api/users/me', isAuthenticated, (req, res) => {
+  const userId = req.session.user.id
+  if (!userId) return res.status(401).json({ error: '로그인이 필요합니다.' })
+
+  pool.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message })
+    req.session.destroy(() => {
+      res.json({ message: '회원 탈퇴 성공' })
+    })
+  })
+})
 
 // 정적 파일 제공 (React 빌드 파일)
 app.use(express.static(path.join(__dirname, '../build')))
