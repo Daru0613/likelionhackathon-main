@@ -7,7 +7,7 @@
   box-shadow: 0px 2px 8px rgba(38, 166, 154, 0.12); /* 청록 그림자 */
   position: relative;
   z-index: 10;
-  height: 100px; /* 높이 보장 */
+  height: 90px; /* 높이 보장 */
   box-sizing: border-box; /* 패딩 포함 */
 }
 
