@@ -39,7 +39,7 @@ const Signup = () => {
     try {
       // 인증코드 발송 API 요청
       const response = await fetch(
-        'https://joongbu.store/api/send-verification',
+        'https://goaiyang.site/api/send-verification',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -80,7 +80,7 @@ const Signup = () => {
     }
     try {
       // 인증코드 확인 API 요청
-      const response = await fetch('https://joongbu.store/api/verify-code', {
+      const response = await fetch('https://goaiyang.site/api/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -115,7 +115,7 @@ const Signup = () => {
 
     try {
       // 회원가입 API 요청
-      const response = await fetch('https://joongbu.store/api/signup', {
+      const response = await fetch('https://goaiyang.site/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
