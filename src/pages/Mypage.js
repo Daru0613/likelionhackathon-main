@@ -24,7 +24,7 @@ const MyPage = () => {
   const [userProfile, setUserProfile] = useState({ iduser: '', email: '' })
   const navigate = useNavigate()
 
-  // 사용자 정보 불러오기 (로컬스토리지 userId 활용)
+  // 사용자 정보 불러오기 (로컬스토리지 iduser 활용)
   useEffect(() => {
     const userId = localStorage.getItem('userId')
     if (!userId) {
@@ -54,8 +54,9 @@ const MyPage = () => {
     setSelectedDate(null)
   }
 
-  // 회원 탈퇴 수정
+  // 회원 탈퇴 (iduser 기반)로 수정
   const handleWithdraw = () => {
+    const userId = localStorage.getItem('userId')
     if (
       !window.confirm(
         '정말 회원 탈퇴를 진행하시겠습니까? 모든 데이터가 삭제됩니다.'
@@ -63,7 +64,13 @@ const MyPage = () => {
     )
       return
 
-    fetch('/api/users/me', {
+    if (!userId) {
+      alert('로그인을 다시 진행해 주세요.')
+      navigate('/login')
+      return
+    }
+
+    fetch(`/api/users/${userId}`, {
       method: 'DELETE',
       credentials: 'include',
     })

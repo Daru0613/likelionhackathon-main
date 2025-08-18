@@ -256,11 +256,11 @@ const unifiedRouter = require('./routes.js')
 
 app.use('/api', unifiedRouter) // 모든 라우팅을 /api 하위에서 처리
 
-// 사용자 정보 조회 API 추가 (isAuthenticated 사용)
-app.get('/api/users/:userId', isAuthenticated, (req, res) => {
-  const userId = req.params.userId
-  const query = 'SELECT iduser, email FROM users WHERE id = ?'
-  pool.query(query, [userId], (err, results) => {
+// 사용자 정보 조회 API 수정 (iduser 문자열 기준, isAuthenticated 적용)
+app.get('/api/users/:iduser', isAuthenticated, (req, res) => {
+  const iduser = req.params.iduser
+  const query = 'SELECT iduser, email FROM users WHERE iduser = ?'
+  pool.query(query, [iduser], (err, results) => {
     if (err) return res.status(500).json({ error: err.message })
     if (results.length === 0)
       return res.status(404).json({ error: '사용자 없음' })
@@ -268,12 +268,16 @@ app.get('/api/users/:userId', isAuthenticated, (req, res) => {
   })
 })
 
-// 회원 탈퇴 API 추가 (isAuthenticated 사용)
-app.delete('/api/users/me', isAuthenticated, (req, res) => {
-  const userId = req.session.user.id
-  if (!userId) return res.status(401).json({ error: '로그인이 필요합니다.' })
+// 회원 탈퇴 API 수정 (iduser 문자열 기준, 본인 인증 포함)
+app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
+  const iduser = req.params.iduser
 
-  pool.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+  // 본인 계정만 탈퇴 가능하도록 세션과 비교
+  if (!req.session.user || req.session.user.iduser !== iduser) {
+    return res.status(401).json({ error: '본인 계정만 탈퇴 가능합니다.' })
+  }
+
+  pool.query('DELETE FROM users WHERE iduser = ?', [iduser], (err, result) => {
     if (err) return res.status(500).json({ error: err.message })
     req.session.destroy(() => {
       res.json({ message: '회원 탈퇴 성공' })
