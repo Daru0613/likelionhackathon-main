@@ -268,7 +268,7 @@ app.get('/api/users/:iduser', isAuthenticated, (req, res) => {
   })
 })
 
-// 회원 탈퇴 API 수정 (iduser 문자열 기준, 본인 인증 포함)
+// 회원 탈퇴 API 수정 (iduser 문자열 기준, 본인 인증 포함, 연관 게시글 먼저 삭제)
 app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
 
@@ -277,12 +277,32 @@ app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
     return res.status(401).json({ error: '본인 계정만 탈퇴 가능합니다.' })
   }
 
-  pool.query('DELETE FROM users WHERE iduser = ?', [iduser], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message })
-    req.session.destroy(() => {
-      res.json({ message: '회원 탈퇴 성공' })
-    })
-  })
+  // 먼저 게시글 삭제
+  pool.query(
+    'DELETE FROM posts WHERE user_id = (SELECT id FROM users WHERE iduser = ?)',
+    [iduser],
+    (err) => {
+      if (err) {
+        console.error('게시글 삭제 에러:', err)
+        return res
+          .status(500)
+          .json({ error: '게시글 삭제 에러: ' + err.message })
+      }
+      // 회원 정보 삭제
+      pool.query('DELETE FROM users WHERE iduser = ?', [iduser], (err) => {
+        if (err) {
+          console.error('회원 탈퇴 에러:', err)
+          return res
+            .status(500)
+            .json({ error: '회원 탈퇴 에러: ' + err.message })
+        }
+        // 세션 파기 및 성공 응답
+        req.session.destroy(() => {
+          res.json({ message: '회원 탈퇴 성공' })
+        })
+      })
+    }
+  )
 })
 
 // 정적 파일 제공 (React 빌드 파일)
