@@ -7,6 +7,8 @@
   box-shadow: 0px 2px 8px rgba(38, 166, 154, 0.12); /* 청록 그림자 */
   position: relative;
   z-index: 10;
+  height: 60px; /* 높이 보장 */
+  box-sizing: border-box; /* 패딩 포함 */
 }
 
 .navbar-logo {
@@ -26,6 +28,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: center; /* 높이 맞춤 */
 }
 
 .navbar-links li {
