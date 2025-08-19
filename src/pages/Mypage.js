@@ -4,6 +4,7 @@ import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
 import { Line, Bar } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -72,6 +73,61 @@ const emotionColors = {
 
 // API 베이스
 const API_BASE = process.env.REACT_APP_API_BASE || 'https://goaiyang.site/api'
+
+// 사용자 정보 상태 추가
+const [userProfile, setUserProfile] = useState({ iduser: '', email: '' })
+const navigate = useNavigate()
+
+// 사용자 정보 불러오기 (로컬스토리지 iduser 활용)
+useEffect(() => {
+  const userId = localStorage.getItem('userId')
+  if (!userId) {
+    alert('로그인이 필요합니다.')
+    navigate('/login')
+    return
+  }
+  fetch(`/api/users/${userId}`, { credentials: 'include' })
+    .then((res) => {
+      if (!res.ok) throw new Error('사용자 정보 불러오기 실패')
+      return res.json()
+    })
+    .then((data) => setUserProfile({ iduser: data.iduser, email: data.email }))
+    .catch(() => {
+      alert('사용자 정보 로드 실패. 다시 로그인해주세요.')
+      navigate('/login')
+    })
+}, [navigate])
+
+// 회원 탈퇴 (iduser 기반)로 수정
+const handleWithdraw = () => {
+  const userId = localStorage.getItem('userId')
+  if (
+    !window.confirm(
+      '정말 회원 탈퇴를 진행하시겠습니까? 모든 데이터가 삭제됩니다.'
+    )
+  )
+    return
+
+  if (!userId) {
+    alert('로그인을 다시 진행해 주세요.')
+    navigate('/login')
+    return
+  }
+
+  fetch(`/api/users/${userId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('회원 탈퇴 실패')
+      alert('성공적으로 탈퇴되었습니다.')
+      localStorage.removeItem('userId')
+      navigate('/login')
+    })
+    .catch(() => {
+      alert('회원 탈퇴 중 오류가 발생했습니다.')
+    })
+}
 
 // YYYY-MM-DD
 const formatDate = (date) => {
