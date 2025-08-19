@@ -74,8 +74,6 @@ const Login = () => {
           <Link to="/signup">회원가입</Link>
           <br />
           <Link to="/find">아이디/비밀번호 찾기</Link>
-          <br />
-          <Link to="/users">관리자</Link>
         </div>
       </div>
     </div>

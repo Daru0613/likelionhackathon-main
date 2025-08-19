@@ -89,3 +89,20 @@ exports.deletePost = (req, res) => {
     res.send('Post deleted')
   })
 }
+
+// 내가 작성한 후기 확인하기
+exports.getMyPosts = (req, res) => {
+  const userId = req.user.id // 세션에서 온 로그인 사용자 id
+
+  const sql = `
+    SELECT posts.*, users.iduser AS author
+    FROM posts
+    LEFT JOIN users ON posts.user_id = users.id
+    WHERE posts.user_id = ?
+    ORDER BY posts.created_at DESC
+  `
+  db.query(sql, [userId], (err, results) => {
+    if (err) return res.status(500).send('DB Error')
+    res.send(results)
+  })
+}

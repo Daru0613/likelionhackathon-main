@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import '../css/Mainpage.css'
 
-function Mainpage() {
+function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const abortControllerRef = useRef(null)
@@ -150,4 +150,4 @@ function Mainpage() {
   )
 }
 
-export default Mainpage
+export default App
