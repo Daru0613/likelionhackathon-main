@@ -172,7 +172,6 @@ const MyPage = () => {
       return
 
     const newDate = formatDate(selectedDate)
-    const userId = localStorage.getItem('userId')
 
     // 서버에 저장 요청
     fetch('/api/healing-calendar', {
@@ -235,7 +234,7 @@ const MyPage = () => {
     (a, b) => new Date(a.date) - new Date(b.date)
   )
 
-  // 감정 히스토리 - 라인차트 데이터
+  // 감정 히스토리(라인 차트)
   const lineData = {
     datasets: [
       {
@@ -251,7 +250,6 @@ const MyPage = () => {
       },
     ],
   }
-
   const lineOptions = {
     responsive: true,
     scales: {
@@ -264,7 +262,7 @@ const MyPage = () => {
     },
   }
 
-  // 막대차트용 월별 집계
+  // 막대 차트용 월별 집계
   const monthlyCounts = {}
   sortedSpots.forEach((s) => {
     const month = s.date?.slice(0, 7)
@@ -316,7 +314,7 @@ const MyPage = () => {
       </div>
 
       <div className="mypage-body">
-        {/* 좌측 사이드바 */}
+        {/* 사이드바 탭 */}
         <div className="mypage-sidebar">
           <p
             className={selectedContent === TABS.HEALING ? 'active' : ''}
@@ -344,7 +342,7 @@ const MyPage = () => {
           </p>
         </div>
 
-        {/* 우측 본문 */}
+        {/* 본문 */}
         <div className="mypage-content">
           <h3 className="content-title">{selectedContent}</h3>
 
@@ -365,7 +363,6 @@ const MyPage = () => {
                   ) : null
                 }}
               />
-
               {selectedDate && (
                 <div className="calendar-form">
                   <h4>{formatDate(selectedDate)} 기록 추가</h4>
