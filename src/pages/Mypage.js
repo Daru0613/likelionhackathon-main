@@ -100,6 +100,8 @@ const MyPage = () => {
     afterEmotion: '',
   })
   const [existingRecord, setExistingRecord] = useState(null)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [isError, setIsError] = useState(false)
 
   const [posts, setPosts] = useState([])
   const [hasLoadedPosts, setHasLoadedPosts] = useState(false)
@@ -133,9 +135,8 @@ const MyPage = () => {
     fetch(`/api/healing-calendar/${userId}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
-        // date 필드를 formatDate로 포맷해서 저장 (문제 1 해결)
         const records = data.map((rec) => ({
-          id: rec.id, // 가정: DB에서 id 필드가 반환됨
+          id: rec.id, // 서버에서 id 필드가 반환된다고 가정
           name: rec.place,
           beforeEmotion: rec.emotion_prev,
           afterEmotion: rec.emotion_next,
@@ -161,6 +162,8 @@ const MyPage = () => {
             }
           : { name: '', beforeEmotion: '', afterEmotion: '' }
       )
+      setIsSuccess(false)
+      setIsError(false)
     }
   }, [selectedDate, spots])
 
@@ -185,15 +188,19 @@ const MyPage = () => {
     loadMyPosts()
   }, [selectedContent, hasLoadedPosts])
 
-  // 힐링 기록 저장/수정 (서버 저장 + 상태 갱신)
+  // 힐링 기록 저장/수정
   const handleSaveRecord = () => {
     if (
       !newSpot.name ||
       !newSpot.afterEmotion ||
       !newSpot.beforeEmotion ||
       !selectedDate
-    )
+    ) {
+      alert('모든 필드를 입력해주세요.')
+      setIsError(true)
+      setIsSuccess(false)
       return
+    }
 
     const newDate = formatDate(selectedDate)
     const userId = localStorage.getItem('userId')
@@ -205,12 +212,10 @@ const MyPage = () => {
       emotion_next: newSpot.afterEmotion,
     }
 
-    let method = 'POST'
-    let url = '/api/healing-calendar'
-    if (existingRecord) {
-      method = 'PUT'
-      url = `/api/healing-calendar/${existingRecord.id}`
-    }
+    const method = existingRecord ? 'PUT' : 'POST'
+    const url = existingRecord
+      ? `/api/healing-calendar/${existingRecord.id}`
+      : '/api/healing-calendar'
 
     fetch(url, {
       method,
@@ -219,11 +224,10 @@ const MyPage = () => {
       body: JSON.stringify(payload),
     })
       .then((res) => {
-        if (!res.ok) throw new Error('기록 저장 실패')
-        return res.json()
-      })
-      .then(() => {
-        // 저장 후 DB에서 최신 기록 다시 로드
+        if (!res.ok)
+          throw new Error(existingRecord ? '기록 수정 실패' : '기록 저장 실패')
+        setIsSuccess(true)
+        setIsError(false)
         return fetch(`/api/healing-calendar/${userId}`, {
           credentials: 'include',
         })
@@ -241,12 +245,19 @@ const MyPage = () => {
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
         setExistingRecord(null)
+        setTimeout(() => setIsSuccess(false), 2000) // 2초 후 성공 메시지 숨김
       })
-      .catch((err) => alert('기록 저장 실패: ' + err.message))
+      .catch((err) => {
+        setIsError(true)
+        setIsSuccess(false)
+        alert(
+          `${existingRecord ? '기록 수정' : '기록 저장'} 실패: ${err.message}`
+        )
+      })
   }
 
   // 힐링 기록 삭제
-  const handleDelete = () => {
+  const handleDeleteRecord = () => {
     if (!existingRecord) return
     if (!window.confirm('정말로 이 기록을 삭제하시겠습니까?')) return
 
@@ -258,7 +269,8 @@ const MyPage = () => {
     })
       .then((res) => {
         if (!res.ok) throw new Error('기록 삭제 실패')
-        // 삭제 후 DB에서 최신 기록 다시 로드
+        setIsSuccess(true)
+        setIsError(false)
         return fetch(`/api/healing-calendar/${userId}`, {
           credentials: 'include',
         })
@@ -276,8 +288,13 @@ const MyPage = () => {
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
         setExistingRecord(null)
+        setTimeout(() => setIsSuccess(false), 2000) // 2초 후 성공 메시지 숨김
       })
-      .catch((err) => alert('기록 삭제 실패: ' + err.message))
+      .catch((err) => {
+        setIsError(true)
+        setIsSuccess(false)
+        alert('기록 삭제 실패: ' + err.message)
+      })
   }
 
   // 회원 탈퇴
@@ -320,7 +337,7 @@ const MyPage = () => {
       {
         label: '이후 감정 변화',
         data: sortedSpots.map((s) => ({
-          x: formatDate(new Date(s.date)), // 문제 2 해결: 날짜 포맷팅 적용
+          x: formatDate(new Date(s.date)),
           y: s.afterEmotion,
         })),
         parsing: { xAxisKey: 'x', yAxisKey: 'y' },
@@ -444,7 +461,11 @@ const MyPage = () => {
               />
               {selectedDate && (
                 <div className="calendar-form">
-                  <h4>{existingRecord ? '기록 수정' : '기록 추가'}</h4>
+                  <h4>
+                    {existingRecord
+                      ? `${formatDate(selectedDate)} 기록 수정`
+                      : `${formatDate(selectedDate)} 기록 추가`}
+                  </h4>
                   <input
                     type="text"
                     placeholder="장소명 입력"
@@ -483,10 +504,12 @@ const MyPage = () => {
                       </option>
                     ))}
                   </select>
-                  <button onClick={handleSaveRecord}>기록 저장</button>
+                  <button onClick={handleSaveRecord}>
+                    {existingRecord ? '수정 완료' : '기록 저장'}
+                  </button>
                   {existingRecord && (
                     <button
-                      onClick={handleDelete}
+                      onClick={handleDeleteRecord}
                       style={{
                         marginLeft: '10px',
                         backgroundColor: 'red',
@@ -495,6 +518,16 @@ const MyPage = () => {
                     >
                       기록 삭제
                     </button>
+                  )}
+                  {isSuccess && (
+                    <div className="message success">
+                      기록이 {existingRecord ? '수정' : '저장'}되었습니다
+                    </div>
+                  )}
+                  {isError && (
+                    <div className="message error">
+                      {existingRecord ? '수정' : '저장'}에 실패했습니다
+                    </div>
                   )}
                 </div>
               )}
