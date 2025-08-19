@@ -1,5 +1,3 @@
-// MyPage.js 수정 전체 코드
-
 import React, { useState, useEffect } from 'react'
 import '../css/MyPage.css'
 import Calendar from 'react-calendar'
@@ -101,6 +99,7 @@ const MyPage = () => {
     beforeEmotion: '',
     afterEmotion: '',
   })
+  const [existingRecord, setExistingRecord] = useState(null)
 
   const [posts, setPosts] = useState([])
   const [hasLoadedPosts, setHasLoadedPosts] = useState(false)
@@ -136,6 +135,7 @@ const MyPage = () => {
       .then((data) => {
         // date 필드를 formatDate로 포맷해서 저장 (문제 1 해결)
         const records = data.map((rec) => ({
+          id: rec.id, // 가정: DB에서 id 필드가 반환됨
           name: rec.place,
           beforeEmotion: rec.emotion_prev,
           afterEmotion: rec.emotion_next,
@@ -145,6 +145,24 @@ const MyPage = () => {
       })
       .catch((e) => console.error('힐링 기록 로드 실패:', e))
   }, [navigate])
+
+  // 선택된 날짜 변경 시 기존 기록 로드
+  useEffect(() => {
+    if (selectedDate) {
+      const dateStr = formatDate(selectedDate)
+      const match = spots.find((spot) => spot.date === dateStr)
+      setExistingRecord(match || null)
+      setNewSpot(
+        match
+          ? {
+              name: match.name,
+              beforeEmotion: match.beforeEmotion,
+              afterEmotion: match.afterEmotion,
+            }
+          : { name: '', beforeEmotion: '', afterEmotion: '' }
+      )
+    }
+  }, [selectedDate, spots])
 
   // 후기 로드
   useEffect(() => {
@@ -167,7 +185,7 @@ const MyPage = () => {
     loadMyPosts()
   }, [selectedContent, hasLoadedPosts])
 
-  // 힐링 기록 저장 (서버 저장 + 상태 갱신)
+  // 힐링 기록 저장/수정 (서버 저장 + 상태 갱신)
   const handleSaveRecord = () => {
     if (
       !newSpot.name ||
@@ -180,16 +198,25 @@ const MyPage = () => {
     const newDate = formatDate(selectedDate)
     const userId = localStorage.getItem('userId')
 
-    fetch('/api/healing-calendar', {
-      method: 'POST',
+    const payload = {
+      place: newSpot.name,
+      record_date: newDate,
+      emotion_prev: newSpot.beforeEmotion,
+      emotion_next: newSpot.afterEmotion,
+    }
+
+    let method = 'POST'
+    let url = '/api/healing-calendar'
+    if (existingRecord) {
+      method = 'PUT'
+      url = `/api/healing-calendar/${existingRecord.id}`
+    }
+
+    fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({
-        place: newSpot.name,
-        record_date: newDate,
-        emotion_prev: newSpot.beforeEmotion,
-        emotion_next: newSpot.afterEmotion,
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => {
         if (!res.ok) throw new Error('기록 저장 실패')
@@ -204,6 +231,7 @@ const MyPage = () => {
       .then((res) => res.json())
       .then((data) => {
         const records = data.map((rec) => ({
+          id: rec.id,
           name: rec.place,
           beforeEmotion: rec.emotion_prev,
           afterEmotion: rec.emotion_next,
@@ -212,8 +240,44 @@ const MyPage = () => {
         setSpots(records)
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
+        setExistingRecord(null)
       })
       .catch((err) => alert('기록 저장 실패: ' + err.message))
+  }
+
+  // 힐링 기록 삭제
+  const handleDelete = () => {
+    if (!existingRecord) return
+    if (!window.confirm('정말로 이 기록을 삭제하시겠습니까?')) return
+
+    const userId = localStorage.getItem('userId')
+
+    fetch(`/api/healing-calendar/${existingRecord.id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('기록 삭제 실패')
+        // 삭제 후 DB에서 최신 기록 다시 로드
+        return fetch(`/api/healing-calendar/${userId}`, {
+          credentials: 'include',
+        })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        const records = data.map((rec) => ({
+          id: rec.id,
+          name: rec.place,
+          beforeEmotion: rec.emotion_prev,
+          afterEmotion: rec.emotion_next,
+          date: formatDate(new Date(rec.record_date)),
+        }))
+        setSpots(records)
+        setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
+        setSelectedDate(null)
+        setExistingRecord(null)
+      })
+      .catch((err) => alert('기록 삭제 실패: ' + err.message))
   }
 
   // 회원 탈퇴
@@ -380,7 +444,7 @@ const MyPage = () => {
               />
               {selectedDate && (
                 <div className="calendar-form">
-                  <h4>{formatDate(selectedDate)} 기록 추가</h4>
+                  <h4>{existingRecord ? '기록 수정' : '기록 추가'}</h4>
                   <input
                     type="text"
                     placeholder="장소명 입력"
@@ -420,6 +484,18 @@ const MyPage = () => {
                     ))}
                   </select>
                   <button onClick={handleSaveRecord}>기록 저장</button>
+                  {existingRecord && (
+                    <button
+                      onClick={handleDelete}
+                      style={{
+                        marginLeft: '10px',
+                        backgroundColor: 'red',
+                        color: 'white',
+                      }}
+                    >
+                      기록 삭제
+                    </button>
+                  )}
                 </div>
               )}
             </div>
