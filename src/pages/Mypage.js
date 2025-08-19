@@ -29,7 +29,6 @@ ChartJS.register(
   Legend
 )
 
-// 탭 라벨
 const TABS = {
   HEALING: '힐링 기록 보기',
   HISTORY: '감정 히스토리',
@@ -37,7 +36,6 @@ const TABS = {
   WITHDRAW: '회원 탈퇴',
 }
 
-// 감정 순서
 const emotionList = [
   '기쁨',
   '편안',
@@ -54,7 +52,6 @@ const emotionList = [
   '분노',
 ]
 
-// 감정별 색상
 const emotionColors = {
   기쁨: 'rgba(255, 206, 86, 0.7)',
   편안: 'rgba(200, 180, 255, 0.7)',
@@ -71,10 +68,8 @@ const emotionColors = {
   분노: 'rgba(255, 99, 132, 0.7)',
 }
 
-// API 베이스 (app.js에서 설정한 backend 도메인)
 const API_BASE = process.env.REACT_APP_API_BASE || 'https://goaiyang.site/api'
 
-// YYYY-MM-DD 변환 함수
 const formatDate = (date) => {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -82,7 +77,6 @@ const formatDate = (date) => {
   return `${y}-${m}-${d}`
 }
 
-// 날짜 예쁘게 표시
 const prettyDate = (d) =>
   !d
     ? ''
@@ -98,7 +92,6 @@ const MyPage = () => {
 
   const [selectedContent, setSelectedContent] = useState(TABS.HEALING)
 
-  // spots(힐링 기록) 상태
   const [spots, setSpots] = useState([])
   const [selectedDate, setSelectedDate] = useState(null)
   const [newSpot, setNewSpot] = useState({
@@ -107,14 +100,12 @@ const MyPage = () => {
     afterEmotion: '',
   })
 
-  // 후기 상태 (server)
   const [posts, setPosts] = useState([])
   const [hasLoadedPosts, setHasLoadedPosts] = useState(false)
 
-  // 감정 히스토리(월별) 선택 상태
   const [selectedMonth, setSelectedMonth] = useState('')
 
-  // 사용자 정보 가져오기
+  // 사용자 정보 및 힐링 기록 받아오기
   useEffect(() => {
     const userId = localStorage.getItem('userId')
     if (!userId) {
@@ -135,11 +126,9 @@ const MyPage = () => {
         navigate('/login')
       })
 
-    // 힐링 기록(healing_calendar) API 호출
     fetch(`/api/healing-calendar/${userId}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
-        // 로컬 상태에 spots 형식 맞게 변환
         const records = data.map((rec) => ({
           name: rec.place,
           beforeEmotion: rec.emotion_prev,
@@ -151,7 +140,7 @@ const MyPage = () => {
       .catch((e) => console.error('힐링 기록 로드 실패:', e))
   }, [navigate])
 
-  // 후기: 후기 탭 선택 시 서버 호출 (my-posts API)
+  // 후기 로드
   useEffect(() => {
     const loadMyPosts = async () => {
       if (selectedContent !== TABS.POSTS || hasLoadedPosts) return
@@ -172,7 +161,7 @@ const MyPage = () => {
     loadMyPosts()
   }, [selectedContent, hasLoadedPosts])
 
-  // 기록 저장
+  // 힐링 기록 저장함수 - 서버에 기록 저장 요청도 같이
   const handleSaveRecord = () => {
     if (
       !newSpot.name ||
@@ -181,13 +170,36 @@ const MyPage = () => {
       !selectedDate
     )
       return
+
     const newDate = formatDate(selectedDate)
-    setSpots([...spots, { ...newSpot, date: newDate }])
-    setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
-    setSelectedDate(null)
+    const userId = localStorage.getItem('userId')
+
+    // 서버에 저장 요청
+    fetch('/api/healing-calendar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        place: newSpot.name,
+        record_date: newDate,
+        emotion_prev: newSpot.beforeEmotion,
+        emotion_next: newSpot.afterEmotion,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('기록 저장 실패')
+        return res.json()
+      })
+      .then(() => {
+        // 서버 저장 성공 후 로컬 상태 업데이트
+        setSpots([...spots, { ...newSpot, date: newDate }])
+        setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
+        setSelectedDate(null)
+      })
+      .catch((err) => alert('기록 저장 실패: ' + err.message))
   }
 
-  // 회원 탈퇴 (서버 API 호출)
+  // 회원 탈퇴
   const handleWithdraw = () => {
     const userId = localStorage.getItem('userId')
     if (
@@ -223,7 +235,7 @@ const MyPage = () => {
     (a, b) => new Date(a.date) - new Date(b.date)
   )
 
-  // 감정 히스토리(라인 차트 데이터)
+  // 감정 히스토리 - 라인차트 데이터
   const lineData = {
     datasets: [
       {
@@ -252,7 +264,7 @@ const MyPage = () => {
     },
   }
 
-  // 막대 차트용 월별 감정 빈도 집계
+  // 막대차트용 월별 집계
   const monthlyCounts = {}
   sortedSpots.forEach((s) => {
     const month = s.date?.slice(0, 7)
@@ -304,7 +316,7 @@ const MyPage = () => {
       </div>
 
       <div className="mypage-body">
-        {/* 사이드바 탭 */}
+        {/* 좌측 사이드바 */}
         <div className="mypage-sidebar">
           <p
             className={selectedContent === TABS.HEALING ? 'active' : ''}
@@ -332,11 +344,10 @@ const MyPage = () => {
           </p>
         </div>
 
-        {/* 본문 */}
+        {/* 우측 본문 */}
         <div className="mypage-content">
           <h3 className="content-title">{selectedContent}</h3>
 
-          {/* 힐링 기록 보기 */}
           {selectedContent === TABS.HEALING && (
             <div>
               <p>나의 감정 회복을 위해 방문한 날짜와 장소입니다.</p>
@@ -354,6 +365,7 @@ const MyPage = () => {
                   ) : null
                 }}
               />
+
               {selectedDate && (
                 <div className="calendar-form">
                   <h4>{formatDate(selectedDate)} 기록 추가</h4>
@@ -401,7 +413,6 @@ const MyPage = () => {
             </div>
           )}
 
-          {/* 감정 히스토리 */}
           {selectedContent === TABS.HISTORY && (
             <div>
               <p>최근 감정 변화 히스토리</p>
@@ -428,7 +439,6 @@ const MyPage = () => {
             </div>
           )}
 
-          {/* 내가 작성한 후기 */}
           {selectedContent === TABS.POSTS && (
             <div>
               <p>내가 남긴 힐링 후기들입니다.</p>
@@ -451,7 +461,6 @@ const MyPage = () => {
             </div>
           )}
 
-          {/* 회원 탈퇴 */}
           {selectedContent === TABS.WITHDRAW && (
             <div className="withdraw-section">
               <p

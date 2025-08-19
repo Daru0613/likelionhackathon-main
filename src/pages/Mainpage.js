@@ -73,10 +73,12 @@ function App() {
     }
   }
 
-  // 메시지 추가될 때 chat-container 내부 스크롤 맨 아래로
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth', // ← 부드럽게 이동
+      })
     }
   }, [messages])
 

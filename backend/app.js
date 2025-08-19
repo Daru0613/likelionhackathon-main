@@ -268,7 +268,7 @@ app.get('/api/users/:iduser', isAuthenticated, (req, res) => {
   })
 })
 
-// 힐링 기록, 감정 히스토리 조회 (healing_calendar)
+// 힐링 기록 조회 (healing_calendar)
 app.get('/api/healing-calendar/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
   pool.query(
@@ -292,7 +292,7 @@ app.get('/api/healing-calendar/:iduser', isAuthenticated, (req, res) => {
   )
 })
 
-// 내가 작성한 후기 조회 (posts)
+// 내가 작성한 후기 조회
 app.get('/api/my-posts/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
   pool.query(
@@ -316,7 +316,31 @@ app.get('/api/my-posts/:iduser', isAuthenticated, (req, res) => {
   )
 })
 
-// 회원 탈퇴 API 수정 (iduser 문자열 기준, 본인 인증 포함, 연관 게시글 먼저 삭제)
+// 힐링 기록 저장 API
+app.post('/api/healing-calendar', isAuthenticated, (req, res) => {
+  const userId = req.session.user?.id
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' })
+  }
+
+  const { place, record_date, emotion_prev, emotion_next } = req.body
+  if (!place || !record_date || !emotion_prev || !emotion_next) {
+    return res.status(400).json({ error: '필수 정보가 누락되었습니다.' })
+  }
+
+  const query =
+    'INSERT INTO healing_calendar (user_id, place, record_date, emotion_prev, emotion_next) VALUES (?, ?, ?, ?, ?)'
+  pool.query(
+    query,
+    [userId, place, record_date, emotion_prev, emotion_next],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err.message })
+      res.json({ message: '힐링 기록 저장 완료', id: result.insertId })
+    }
+  )
+})
+
+// 회원 탈퇴 API (iduser 기준, 본인인증, 연관 삭제)
 app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
 
