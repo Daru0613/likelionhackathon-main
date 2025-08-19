@@ -71,10 +71,10 @@ const emotionColors = {
   분노: 'rgba(255, 99, 132, 0.7)',
 }
 
-// API 베이스
+// API 베이스 (app.js에서 설정한 backend 도메인)
 const API_BASE = process.env.REACT_APP_API_BASE || 'https://goaiyang.site/api'
 
-// YYYY-MM-DD
+// YYYY-MM-DD 변환 함수
 const formatDate = (date) => {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -82,7 +82,7 @@ const formatDate = (date) => {
   return `${y}-${m}-${d}`
 }
 
-// 날짜 표시용
+// 날짜 예쁘게 표시
 const prettyDate = (d) =>
   !d
     ? ''
@@ -93,13 +93,12 @@ const prettyDate = (d) =>
       })
 
 const MyPage = () => {
-  // React Hook들 컴포넌트 내부에 선언
   const [userProfile, setUserProfile] = useState({ iduser: '', email: '' })
   const navigate = useNavigate()
 
   const [selectedContent, setSelectedContent] = useState(TABS.HEALING)
 
-  // 힐링 스팟(로컬 저장)
+  // spots(힐링 기록) 상태
   const [spots, setSpots] = useState([])
   const [selectedDate, setSelectedDate] = useState(null)
   const [newSpot, setNewSpot] = useState({
@@ -108,51 +107,14 @@ const MyPage = () => {
     afterEmotion: '',
   })
 
-  // 후기 (서버)
+  // 후기 상태 (server)
   const [posts, setPosts] = useState([])
   const [hasLoadedPosts, setHasLoadedPosts] = useState(false)
 
-  // 감정 히스토리(월별)
+  // 감정 히스토리(월별) 선택 상태
   const [selectedMonth, setSelectedMonth] = useState('')
 
-  // 초기: spots 로컬에서 가져오기
-  useEffect(() => {
-    const savedSpots = JSON.parse(localStorage.getItem('spots') || '[]')
-    setSpots(savedSpots)
-  }, [])
-
-  // spots 변경 시 로컬 저장
-  useEffect(() => {
-    localStorage.setItem('spots', JSON.stringify(spots))
-  }, [spots])
-
-  // 후기: 후기 탭을 처음 클릭했을 때만 서버 호출
-  useEffect(() => {
-    const loadMyPosts = async () => {
-      if (selectedContent !== TABS.POSTS || hasLoadedPosts) return
-      try {
-        const res = await fetch(`${API_BASE}/my-posts`, {
-          credentials: 'include',
-        })
-        if (!res.ok) throw new Error('Failed to fetch my posts')
-        const data = await res.json()
-        const mapped = (data || []).map((p) => ({
-          id: p.id,
-          title: p.title,
-          content: p.content ?? '',
-          createdAt: p.created_at ?? null,
-          author: p.author ?? '',
-        }))
-        setPosts(mapped)
-        setHasLoadedPosts(true)
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    loadMyPosts()
-  }, [selectedContent, hasLoadedPosts])
-
-  // 사용자 정보 불러오기 (로컬스토리지 iduser 활용)
+  // 사용자 정보 가져오기
   useEffect(() => {
     const userId = localStorage.getItem('userId')
     if (!userId) {
@@ -172,9 +134,45 @@ const MyPage = () => {
         alert('사용자 정보 로드 실패. 다시 로그인해주세요.')
         navigate('/login')
       })
+
+    // 힐링 기록(healing_calendar) API 호출
+    fetch(`/api/healing-calendar/${userId}`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        // 로컬 상태에 spots 형식 맞게 변환
+        const records = data.map((rec) => ({
+          name: rec.place,
+          beforeEmotion: rec.emotion_prev,
+          afterEmotion: rec.emotion_next,
+          date: rec.record_date,
+        }))
+        setSpots(records)
+      })
+      .catch((e) => console.error('힐링 기록 로드 실패:', e))
   }, [navigate])
 
-  // 힐링 기록 저장
+  // 후기: 후기 탭 선택 시 서버 호출 (my-posts API)
+  useEffect(() => {
+    const loadMyPosts = async () => {
+      if (selectedContent !== TABS.POSTS || hasLoadedPosts) return
+      try {
+        const userId = localStorage.getItem('userId')
+        if (!userId) return
+        const res = await fetch(`${API_BASE}/my-posts/${userId}`, {
+          credentials: 'include',
+        })
+        if (!res.ok) throw new Error('후기 불러오기 실패')
+        const data = await res.json()
+        setPosts(data)
+        setHasLoadedPosts(true)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    loadMyPosts()
+  }, [selectedContent, hasLoadedPosts])
+
+  // 기록 저장
   const handleSaveRecord = () => {
     if (
       !newSpot.name ||
@@ -184,13 +182,12 @@ const MyPage = () => {
     )
       return
     const newDate = formatDate(selectedDate)
-    const updated = [...spots, { ...newSpot, date: newDate }]
-    setSpots(updated)
+    setSpots([...spots, { ...newSpot, date: newDate }])
     setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
     setSelectedDate(null)
   }
 
-  // 회원 탈퇴 (iduser 기반)
+  // 회원 탈퇴 (서버 API 호출)
   const handleWithdraw = () => {
     const userId = localStorage.getItem('userId')
     if (
@@ -226,7 +223,7 @@ const MyPage = () => {
     (a, b) => new Date(a.date) - new Date(b.date)
   )
 
-  // 감정 히스토리(라인 차트)
+  // 감정 히스토리(라인 차트 데이터)
   const lineData = {
     datasets: [
       {
@@ -237,7 +234,7 @@ const MyPage = () => {
         backgroundColor: 'rgba(75,192,192,0.3)',
         tension: 0.3,
         pointBackgroundColor: sortedSpots.map(
-          (s) => emotionColors[s.afterEmotion]
+          (s) => emotionColors[s.afterEmotion] || 'rgba(0,0,0,0.4)'
         ),
       },
     ],
@@ -255,7 +252,7 @@ const MyPage = () => {
     },
   }
 
-  // 막대 차트용 월별 집계
+  // 막대 차트용 월별 감정 빈도 집계
   const monthlyCounts = {}
   sortedSpots.forEach((s) => {
     const month = s.date?.slice(0, 7)
@@ -357,7 +354,6 @@ const MyPage = () => {
                   ) : null
                 }}
               />
-
               {selectedDate && (
                 <div className="calendar-form">
                   <h4>{formatDate(selectedDate)} 기록 추가</h4>
@@ -410,7 +406,6 @@ const MyPage = () => {
             <div>
               <p>최근 감정 변화 히스토리</p>
               <Line data={lineData} options={lineOptions} />
-
               <p style={{ marginTop: '30px' }}>한 달 동안 감정 빈도</p>
               <select
                 value={selectedMonth}

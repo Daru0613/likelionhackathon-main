@@ -268,38 +268,98 @@ app.get('/api/users/:iduser', isAuthenticated, (req, res) => {
   })
 })
 
+// 힐링 기록, 감정 히스토리 조회 (healing_calendar)
+app.get('/api/healing-calendar/:iduser', isAuthenticated, (req, res) => {
+  const iduser = req.params.iduser
+  pool.query(
+    'SELECT id FROM users WHERE iduser = ?',
+    [iduser],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message })
+      if (results.length === 0)
+        return res.status(404).json({ error: '사용자 없음' })
+      const userId = results[0].id
+
+      const query = `
+      SELECT pk, record_date, place, emotion_prev, emotion_next 
+      FROM healing_calendar WHERE user_id = ? ORDER BY record_date ASC
+    `
+      pool.query(query, [userId], (err, records) => {
+        if (err) return res.status(500).json({ error: err.message })
+        res.json(records)
+      })
+    }
+  )
+})
+
+// 내가 작성한 후기 조회 (posts)
+app.get('/api/my-posts/:iduser', isAuthenticated, (req, res) => {
+  const iduser = req.params.iduser
+  pool.query(
+    'SELECT id FROM users WHERE iduser = ?',
+    [iduser],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message })
+      if (results.length === 0)
+        return res.status(404).json({ error: '사용자 없음' })
+      const userId = results[0].id
+
+      const query = `
+      SELECT id, title, content, created_at, updated_at 
+      FROM posts WHERE user_id = ? ORDER BY created_at DESC
+    `
+      pool.query(query, [userId], (err, posts) => {
+        if (err) return res.status(500).json({ error: err.message })
+        res.json(posts)
+      })
+    }
+  )
+})
+
 // 회원 탈퇴 API 수정 (iduser 문자열 기준, 본인 인증 포함, 연관 게시글 먼저 삭제)
 app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
 
-  // 본인 계정만 탈퇴 가능하도록 세션과 비교
   if (!req.session.user || req.session.user.iduser !== iduser) {
     return res.status(401).json({ error: '본인 계정만 탈퇴 가능합니다.' })
   }
 
-  // 먼저 게시글 삭제
   pool.query(
-    'DELETE FROM posts WHERE user_id = (SELECT id FROM users WHERE iduser = ?)',
+    'SELECT id FROM users WHERE iduser = ?',
     [iduser],
-    (err) => {
-      if (err) {
-        console.error('게시글 삭제 에러:', err)
-        return res
-          .status(500)
-          .json({ error: '게시글 삭제 에러: ' + err.message })
-      }
-      // 회원 정보 삭제
-      pool.query('DELETE FROM users WHERE iduser = ?', [iduser], (err) => {
-        if (err) {
-          console.error('회원 탈퇴 에러:', err)
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message })
+      if (results.length === 0)
+        return res.status(404).json({ error: '사용자 없음' })
+      const userId = results[0].id
+
+      pool.query('DELETE FROM posts WHERE user_id = ?', [userId], (err) => {
+        if (err)
           return res
             .status(500)
-            .json({ error: '회원 탈퇴 에러: ' + err.message })
-        }
-        // 세션 파기 및 성공 응답
-        req.session.destroy(() => {
-          res.json({ message: '회원 탈퇴 성공' })
-        })
+            .json({ error: '게시글 삭제 에러: ' + err.message })
+
+        pool.query(
+          'DELETE FROM healing_calendar WHERE user_id = ?',
+          [userId],
+          (err) => {
+            if (err)
+              return res
+                .status(500)
+                .json({ error: '힐링 기록 삭제 에러: ' + err.message })
+
+            pool.query('DELETE FROM users WHERE id = ?', [userId], (err) => {
+              if (err)
+                return res
+                  .status(500)
+                  .json({ error: '회원 탈퇴 에러: ' + err.message })
+
+              req.session.destroy(() => {
+                res.json({ message: '회원 탈퇴 성공' })
+              })
+            })
+          }
+        )
       })
     }
   )

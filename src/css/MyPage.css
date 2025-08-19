@@ -183,3 +183,34 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+select {
+  padding: 10px 14px;
+  border: 2px solid #4aa3a2; /* 청록 계열 테두리 */
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+select:hover {
+  border-color: #3b8f8f;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+select:focus {
+  border-color: #2d7c7c;
+  box-shadow: 0 0 0 3px rgba(77, 189, 189, 0.3);
+}
+
+/* option 스타일 */
+select option {
+  padding: 10px;
+  font-size: 15px;
+  color: #333;
+}
