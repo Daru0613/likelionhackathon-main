@@ -281,9 +281,9 @@ app.get('/api/healing-calendar/:iduser', isAuthenticated, (req, res) => {
       const userId = results[0].id
 
       const query = `
-      SELECT pk, record_date, place, emotion_prev, emotion_next 
-      FROM healing_calendar WHERE user_id = ? ORDER BY record_date ASC
-    `
+        SELECT pk, record_date, place, emotion_prev, emotion_next 
+        FROM healing_calendar WHERE user_id = ? ORDER BY record_date ASC
+      `
       pool.query(query, [userId], (err, records) => {
         if (err) return res.status(500).json({ error: err.message })
         res.json(records)
@@ -305,9 +305,9 @@ app.get('/api/my-posts/:iduser', isAuthenticated, (req, res) => {
       const userId = results[0].id
 
       const query = `
-      SELECT id, title, content, created_at, updated_at 
-      FROM posts WHERE user_id = ? ORDER BY created_at DESC
-    `
+        SELECT id, title, content, created_at, updated_at 
+        FROM posts WHERE user_id = ? ORDER BY created_at DESC
+      `
       pool.query(query, [userId], (err, posts) => {
         if (err) return res.status(500).json({ error: err.message })
         res.json(posts)

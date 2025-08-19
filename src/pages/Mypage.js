@@ -105,7 +105,7 @@ const MyPage = () => {
 
   const [selectedMonth, setSelectedMonth] = useState('')
 
-  // 사용자 정보 및 힐링 기록 받아오기
+  // 사용자 정보 및 힐링 기록 불러오기
   useEffect(() => {
     const userId = localStorage.getItem('userId')
     if (!userId) {
@@ -113,6 +113,8 @@ const MyPage = () => {
       navigate('/login')
       return
     }
+
+    // 사용자 정보
     fetch(`/api/users/${userId}`, { credentials: 'include' })
       .then((res) => {
         if (!res.ok) throw new Error('사용자 정보 불러오기 실패')
@@ -126,6 +128,7 @@ const MyPage = () => {
         navigate('/login')
       })
 
+    // 힐링 기록
     fetch(`/api/healing-calendar/${userId}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
@@ -161,7 +164,7 @@ const MyPage = () => {
     loadMyPosts()
   }, [selectedContent, hasLoadedPosts])
 
-  // 힐링 기록 저장함수 - 서버에 기록 저장 요청도 같이
+  // 힐링 기록 저장 (서버 저장 + 상태 갱신)
   const handleSaveRecord = () => {
     if (
       !newSpot.name ||
@@ -172,8 +175,8 @@ const MyPage = () => {
       return
 
     const newDate = formatDate(selectedDate)
+    const userId = localStorage.getItem('userId')
 
-    // 서버에 저장 요청
     fetch('/api/healing-calendar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -190,8 +193,20 @@ const MyPage = () => {
         return res.json()
       })
       .then(() => {
-        // 서버 저장 성공 후 로컬 상태 업데이트
-        setSpots([...spots, { ...newSpot, date: newDate }])
+        // 저장 성공 후 DB에서 최신 기록 다시 로드
+        return fetch(`/api/healing-calendar/${userId}`, {
+          credentials: 'include',
+        })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        const records = data.map((rec) => ({
+          name: rec.place,
+          beforeEmotion: rec.emotion_prev,
+          afterEmotion: rec.emotion_next,
+          date: rec.record_date,
+        }))
+        setSpots(records)
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
       })
@@ -229,12 +244,10 @@ const MyPage = () => {
       })
   }
 
-  // 날짜순 정렬
   const sortedSpots = [...spots].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   )
 
-  // 감정 히스토리(라인 차트)
   const lineData = {
     datasets: [
       {
@@ -262,7 +275,6 @@ const MyPage = () => {
     },
   }
 
-  // 막대 차트용 월별 집계
   const monthlyCounts = {}
   sortedSpots.forEach((s) => {
     const month = s.date?.slice(0, 7)
@@ -298,7 +310,6 @@ const MyPage = () => {
     <div className="mypage-container">
       <h2 className="mypage-subtitle">내 감정 케어</h2>
 
-      {/* 상단 프로필 */}
       <div className="profile-row">
         <div className="profile-icon-box">
           <FontAwesomeIcon icon={faCircleUser} className="profile-icon" />
@@ -314,7 +325,6 @@ const MyPage = () => {
       </div>
 
       <div className="mypage-body">
-        {/* 사이드바 탭 */}
         <div className="mypage-sidebar">
           <p
             className={selectedContent === TABS.HEALING ? 'active' : ''}
@@ -342,7 +352,6 @@ const MyPage = () => {
           </p>
         </div>
 
-        {/* 본문 */}
         <div className="mypage-content">
           <h3 className="content-title">{selectedContent}</h3>
 
