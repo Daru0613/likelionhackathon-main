@@ -340,6 +340,70 @@ app.post('/api/healing-calendar', isAuthenticated, (req, res) => {
   )
 })
 
+// 힐링 기록 수정 API (PUT)
+app.put('/api/healing-calendar/:id', isAuthenticated, (req, res) => {
+  const id = req.params.id
+  const userId = req.session.user?.id
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' })
+  }
+
+  const { place, record_date, emotion_prev, emotion_next } = req.body
+  if (!place || !record_date || !emotion_prev || !emotion_next) {
+    return res.status(400).json({ error: '필수 정보가 누락되었습니다.' })
+  }
+
+  // 자신이 생성한 기록만 수정 가능하도록 검증
+  const checkQuery = 'SELECT user_id FROM healing_calendar WHERE pk = ?'
+  pool.query(checkQuery, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message })
+    if (results.length === 0)
+      return res.status(404).json({ error: '기록을 찾을 수 없습니다.' })
+    if (results[0].user_id !== userId)
+      return res.status(403).json({ error: '권한이 없습니다.' })
+
+    const updateQuery = `
+      UPDATE healing_calendar
+      SET place = ?, record_date = ?, emotion_prev = ?, emotion_next = ?
+      WHERE pk = ?
+    `
+
+    pool.query(
+      updateQuery,
+      [place, record_date, emotion_prev, emotion_next, id],
+      (err) => {
+        if (err) return res.status(500).json({ error: err.message })
+        res.json({ message: '힐링 기록 수정 완료' })
+      }
+    )
+  })
+})
+
+// 힐링 기록 삭제 API (DELETE)
+app.delete('/api/healing-calendar/:id', isAuthenticated, (req, res) => {
+  const id = req.params.id
+  const userId = req.session.user?.id
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' })
+  }
+
+  // 자신이 생성한 기록만 삭제 가능하도록 검증
+  const checkQuery = 'SELECT user_id FROM healing_calendar WHERE pk = ?'
+  pool.query(checkQuery, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message })
+    if (results.length === 0)
+      return res.status(404).json({ error: '기록을 찾을 수 없습니다.' })
+    if (results[0].user_id !== userId)
+      return res.status(403).json({ error: '권한이 없습니다.' })
+
+    const deleteQuery = 'DELETE FROM healing_calendar WHERE pk = ?'
+    pool.query(deleteQuery, [id], (err) => {
+      if (err) return res.status(500).json({ error: err.message })
+      res.json({ message: '힐링 기록 삭제 완료' })
+    })
+  })
+})
+
 // 회원 탈퇴 API (iduser 기준, 본인인증, 연관 삭제)
 app.delete('/api/users/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
