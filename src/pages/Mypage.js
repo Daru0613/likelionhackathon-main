@@ -136,7 +136,7 @@ const MyPage = () => {
       .then((res) => res.json())
       .then((data) => {
         const records = data.map((rec) => ({
-          id: rec.id, // 서버에서 id 필드가 반환된다고 가정
+          id: rec.id, // 백엔드에서 pk AS id 로 지정
           name: rec.place,
           beforeEmotion: rec.emotion_prev,
           afterEmotion: rec.emotion_next,
@@ -245,7 +245,7 @@ const MyPage = () => {
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
         setExistingRecord(null)
-        setTimeout(() => setIsSuccess(false), 2000) // 2초 후 성공 메시지 숨김
+        setTimeout(() => setIsSuccess(false), 2000)
       })
       .catch((err) => {
         setIsError(true)
@@ -288,7 +288,7 @@ const MyPage = () => {
         setNewSpot({ name: '', beforeEmotion: '', afterEmotion: '' })
         setSelectedDate(null)
         setExistingRecord(null)
-        setTimeout(() => setIsSuccess(false), 2000) // 2초 후 성공 메시지 숨김
+        setTimeout(() => setIsSuccess(false), 2000)
       })
       .catch((err) => {
         setIsError(true)
