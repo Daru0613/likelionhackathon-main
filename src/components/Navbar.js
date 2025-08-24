@@ -4,14 +4,15 @@ import '../css/Navbar.css'
 
 function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
   // 로그인 상태 확인
   useEffect(() => {
     const userId = localStorage.getItem('userId')
-    setIsLoggedIn(!!userId) // userId가 있으면 true, 없으면 false
-  }, [location]) // 경로 변경시마다 체크
+    setIsLoggedIn(!!userId)
+  }, [location])
 
   // 로그아웃 처리
   const handleLogout = () => {
@@ -19,47 +20,58 @@ function Navbar() {
     setIsLoggedIn(false)
     alert('로그아웃 되었습니다.')
     navigate('/login')
+    setMenuOpen(false) // 모바일에서 닫히도록
   }
+
+  // 메뉴 토글
+  const toggleMenu = () => setMenuOpen((prev) => !prev)
+
+  // 메뉴 닫기 (링크 클릭 시)
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/" onClick={closeMenu}>
           GoAI양
         </Link>
       </div>
+      <button
+        className="menu-toggle"
+        onClick={toggleMenu}
+        aria-expanded={menuOpen}
+      >
+        ☰
+      </button>
 
-      <ul className="navbar-links">
+      {/* 메뉴 항목 */}
+      <ul className={`navbar-links ${menuOpen ? 'show' : ''}`}>
         {isLoggedIn && (
           <li>
-            <Link to="/boardpage">커뮤니티</Link>
+            <Link to="/boardpage" onClick={closeMenu}>
+              커뮤니티
+            </Link>
           </li>
         )}
+
         {isLoggedIn ? (
           <>
             <li>
-              <Link to="/mypage">마이페이지</Link>
+              <Link to="/mypage" onClick={closeMenu}>
+                마이페이지
+              </Link>
             </li>
             <li>
-              <button
-                onClick={handleLogout}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontWeight: '700',
-                  padding: '6px 14px',
-                  color: '#26a69a',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                }}
-              >
+              <button onClick={handleLogout} className="logout-btn">
                 로그아웃
               </button>
             </li>
           </>
         ) : (
           <li>
-            <Link to="/login">로그인/회원가입</Link>
+            <Link to="/login" onClick={closeMenu}>
+              로그인/회원가입
+            </Link>
           </li>
         )}
       </ul>
