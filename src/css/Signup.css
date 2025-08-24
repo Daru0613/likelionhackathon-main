@@ -130,9 +130,53 @@ form {
   color: #18141b;
 }
 
+@media (max-width: 768px) {
+  .signup-container {
+    width: 90%;
+    padding: 32px 24px;
+    min-width: unset;
+  }
+
+  .signup-container h1 {
+    font-size: 1.8rem; /* .title과 동일 */
+  }
+
+  .form-group label {
+    font-size: 1rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 1rem;
+    padding: 11px 10px;
+  }
+
+  .signup-btn,
+  .verify-code-btn {
+    font-size: 1rem;
+    padding: 12px 0; /* login-btn과 동일 */
+  }
+}
+
+/* ✅ 480px 이하 (모바일) */
 @media (max-width: 480px) {
   .signup-container {
-    padding: 24px 5vw 18px 5vw;
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 26px 8vw 18px 8vw;
+    justify-content: center;
     min-width: unset;
+  }
+
+  .signup-container h1 {
+    font-size: 1.5rem; /* .title과 동일 */
+    margin-bottom: 20px;
+  }
+
+  .signup-footer {
+    font-size: 0.9rem; /* .subtitle과 유사 */
+    text-align: center;
   }
 }

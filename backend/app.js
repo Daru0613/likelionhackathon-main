@@ -256,7 +256,7 @@ const unifiedRouter = require('./routes.js')
 
 app.use('/api', unifiedRouter) // 모든 라우팅을 /api 하위에서 처리
 
-// 사용자 정보 조회 API 수정 (iduser 문자열 기준, isAuthenticated 적용)
+// 사용자 정보 조회 API (iduser 문자열 기준, isAuthenticated 적용)
 app.get('/api/users/:iduser', isAuthenticated, (req, res) => {
   const iduser = req.params.iduser
   const query = 'SELECT iduser, email FROM users WHERE iduser = ?'
@@ -340,7 +340,7 @@ app.post('/api/healing-calendar', isAuthenticated, (req, res) => {
   )
 })
 
-// 힐링 기록 수정 API (PUT)
+// 힐링 기록 수정 API
 app.put('/api/healing-calendar/:id', isAuthenticated, (req, res) => {
   const id = req.params.id
   const userId = req.session.user?.id

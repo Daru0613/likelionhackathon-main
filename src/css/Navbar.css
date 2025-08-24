@@ -1,14 +1,12 @@
 .navbar {
-  background-color: #e0f7f6; /* 부드러운 청록 톤 배경 */
+  background-color: #e0f7f6;
   padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0px 2px 8px rgba(38, 166, 154, 0.12); /* 청록 그림자 */
+  box-shadow: 0px 2px 8px rgba(38, 166, 154, 0.12);
   position: relative;
   z-index: 10;
-  height: 90px; /* 높이 보장 */
-  box-sizing: border-box; /* 패딩 포함 */
 }
 
 .navbar-logo {
@@ -28,7 +26,6 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  align-items: center; /* 높이 맞춤 */
 }
 
 .navbar-links li {
@@ -51,5 +48,62 @@
 .navbar-links a:hover {
   color: white;
   background: #26a69a;
-  box-shadow: 0 0 12px rgba(38, 166, 154, 0.18); /* 통일된 청록 그림자 */
+  box-shadow: 0 0 12px rgba(38, 166, 154, 0.18);
+}
+
+/* 로그아웃 버튼 (앵커랑 통일감) */
+.logout-btn {
+  background: none;
+  border: none;
+  font-weight: 700;
+  padding: 6px 14px;
+  color: #26a69a;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ✅ 모바일 반응형 */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 8px;
+    display: none; /* 기본적으로 숨김 */
+  }
+
+  .navbar-links.show {
+    display: flex; /* 햄버거 버튼 클릭 시 보이도록 */
+  }
+
+  .navbar-links li {
+    margin: 10px 0;
+  }
+
+  .navbar-links a {
+    width: 100%;
+    padding: 10px;
+  }
+
+  /* 햄버거 버튼 */
+  .menu-toggle {
+    display: block;
+    cursor: pointer;
+    font-size: 1.6rem;
+    color: #1e9b94;
+    background: none;
+    border: none;
+  }
+}
+
+/* PC 화면 */
+@media (min-width: 769px) {
+  .menu-toggle {
+    display: none; /* PC에서는 숨김 */
+  }
 }

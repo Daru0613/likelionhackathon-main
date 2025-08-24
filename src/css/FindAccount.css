@@ -131,9 +131,54 @@
   color: #18141b;
 }
 
+@media (max-width: 768px) {
+  .find-account-box {
+    width: 85%;
+    padding: 32px 24px;
+  }
+
+  .find-account-box h1 {
+    font-size: 1.7rem;
+  }
+
+  .find-box h3 {
+    font-size: 1rem;
+  }
+
+  .find-box input {
+    font-size: 1rem;
+    padding: 11px 10px;
+  }
+
+  .find-box button,
+  .send-code-btn,
+  .reset-password-btn {
+    font-size: 1rem;
+    padding: 12px 0;
+  }
+}
+
 @media (max-width: 480px) {
   .find-account-box {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
     padding: 26px 8vw 18px 8vw;
-    min-width: unset;
+    justify-content: center;
+  }
+
+  .find-account-box h1 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .find-box p {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .find-account-container a {
+    font-size: 0.85rem;
   }
 }

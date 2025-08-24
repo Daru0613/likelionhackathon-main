@@ -183,7 +183,6 @@
   border-radius: 6px;
   cursor: pointer;
 }
-
 select {
   padding: 10px 14px;
   border: 2px solid #4aa3a2; /* 청록 계열 테두리 */
@@ -213,4 +212,36 @@ select option {
   padding: 10px;
   font-size: 15px;
   color: #333;
+}
+.mypage-sidebar,
+.footer,
+.subtitle,
+button,
+a,
+p,
+.review-card h4 {
+  white-space: normal; /* 자동 줄바꿈 허용 */
+  word-break: keep-all; /* 단어 단위로 줄바꿈 */
+}
+
+@media (max-width: 768px) {
+  .mypage-body {
+    flex-direction: column; /* 사이드바와 콘텐츠를 세로 배치 */
+  }
+
+  .mypage-sidebar {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .mypage-content {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .review-card {
+    width: 100%;
+  }
 }
